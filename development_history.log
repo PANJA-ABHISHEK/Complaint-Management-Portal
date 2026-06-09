@@ -2,3 +2,4 @@
 [2026-06-07T17:13:26.407Z] docs: add initial README.md
 [2026-06-08T17:13:27.430Z] feat: setup Express server
 [2026-06-08T17:13:28.458Z] feat: configure environment variables
+[2026-06-09T17:13:29.474Z] feat: establish MongoDB connection
