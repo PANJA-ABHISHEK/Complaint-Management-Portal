@@ -4,3 +4,4 @@
 [2026-06-08T17:13:28.458Z] feat: configure environment variables
 [2026-06-09T17:13:29.474Z] feat: establish MongoDB connection
 [2026-06-09T17:13:30.431Z] feat: create User model with Mongoose
+[2026-06-10T17:13:31.166Z] feat: add user registration logic
