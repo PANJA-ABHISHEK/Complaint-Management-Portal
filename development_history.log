@@ -6,3 +6,4 @@
 [2026-06-09T17:13:30.431Z] feat: create User model with Mongoose
 [2026-06-10T17:13:31.166Z] feat: add user registration logic
 [2026-06-11T17:13:32.030Z] feat: implement password hashing with bcrypt
+[2026-06-11T17:13:32.839Z] feat: add user login functionality
