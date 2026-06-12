@@ -8,3 +8,4 @@
 [2026-06-11T17:13:32.030Z] feat: implement password hashing with bcrypt
 [2026-06-11T17:13:32.839Z] feat: add user login functionality
 [2026-06-12T17:13:33.857Z] feat: generate JWT on successful login
+[2026-06-12T17:13:34.691Z] feat: create auth middleware for protected routes
