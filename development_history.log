@@ -11,3 +11,4 @@
 [2026-06-12T17:13:34.691Z] feat: create auth middleware for protected routes
 [2026-06-13T17:13:35.535Z] fix: handle duplicate email error in registration
 [2026-06-14T17:13:36.533Z] feat: create Department model
+[2026-06-14T17:13:37.406Z] feat: seed initial departments data
