@@ -19,3 +19,4 @@
 [2026-06-17T17:13:41.431Z] refactor: extract validation logic to middleware
 [2026-06-18T17:13:42.266Z] feat: implement user complaint fetching
 [2026-06-18T17:13:42.943Z] feat: add pagination to complaints API
+[2026-06-19T17:13:43.735Z] feat: implement text search for complaints
