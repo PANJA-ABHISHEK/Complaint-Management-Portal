@@ -22,3 +22,4 @@
 [2026-06-19T17:13:43.735Z] feat: implement text search for complaints
 [2026-06-20T17:13:44.374Z] feat: add filtering by status and priority
 [2026-06-20T17:13:45.169Z] feat: create admin controller for complaints
+[2026-06-21T17:13:45.980Z] feat: add endpoint to update complaint status
