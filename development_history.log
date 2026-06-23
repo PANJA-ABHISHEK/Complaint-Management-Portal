@@ -26,3 +26,4 @@
 [2026-06-21T17:13:46.644Z] feat: implement complaint assignment logic
 [2026-06-22T17:13:47.311Z] feat: create ActivityLog model
 [2026-06-23T17:13:47.989Z] feat: add logging for complaint status changes
+[2026-06-23T17:13:48.582Z] feat: create Notification model
