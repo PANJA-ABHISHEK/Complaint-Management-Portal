@@ -27,3 +27,4 @@
 [2026-06-22T17:13:47.311Z] feat: create ActivityLog model
 [2026-06-23T17:13:47.989Z] feat: add logging for complaint status changes
 [2026-06-23T17:13:48.582Z] feat: create Notification model
+[2026-06-24T17:13:49.343Z] feat: implement notification creation on status update
