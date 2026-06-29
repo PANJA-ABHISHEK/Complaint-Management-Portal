@@ -35,3 +35,4 @@
 [2026-06-27T17:13:52.650Z] feat: implement generic error handler middleware
 [2026-06-27T17:13:53.381Z] feat: add custom ApiError class
 [2026-06-28T17:13:54.056Z] feat: setup email service with nodemailer
+[2026-06-29T17:13:54.791Z] feat: send email on complaint registration
