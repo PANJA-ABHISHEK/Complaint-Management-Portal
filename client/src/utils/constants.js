@@ -83,3 +83,25 @@ export const getStatusStep = (status) => {
   const index = STATUS_FLOW.indexOf(status);
   return index === -1 ? 0 : index;
 };
+
+export const getStatusVariant = (status) => {
+  const map = {
+    Submitted: 'info',
+    Pending: 'warning',
+    Assigned: 'info',
+    'In Progress': 'primary',
+    'Under Review': 'primary',
+    Resolved: 'success',
+    Closed: 'secondary',
+    Rejected: 'danger',
+  };
+  return map[status] || 'secondary';
+};
+
+export const PRIORITY_COLORS = {
+  low: 'bg-emerald-500',
+  medium: 'bg-amber-500',
+  high: 'bg-orange-500',
+  urgent: 'bg-red-500',
+};
+
