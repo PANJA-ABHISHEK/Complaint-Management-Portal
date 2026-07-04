@@ -44,3 +44,4 @@
 [2026-07-02T17:13:59.055Z] feat: implement report generation logic
 [2026-07-03T17:13:59.685Z] feat: add department performance aggregation
 [2026-07-03T17:14:00.448Z] feat: add monthly trend aggregation pipeline
+[2026-07-04T17:14:01.376Z] refactor: clean up unused imports in controllers
