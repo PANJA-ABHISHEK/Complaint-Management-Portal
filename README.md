@@ -302,3 +302,6 @@ This project is licensed under the MIT License.
 ---
 
 Built with ❤️ using React, Node.js, and MongoDB
+
+## Community
+Join our growing community of developers on GitHub.
