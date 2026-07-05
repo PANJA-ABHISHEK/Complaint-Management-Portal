@@ -1,10 +1,11 @@
+import { formatDateTime } from '../../utils/dateUtils';
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { HiArrowLeft, HiLocationMarker, HiCalendar, HiTag, HiUser, HiPaperClip, HiChat } from 'react-icons/hi';
 import toast from 'react-hot-toast';
 import { complaintService } from '../../services/dataService';
-import { getStatusVariant, formatDateTime, PRIORITY_COLORS } from '../../utils/constants';
+import { getStatusVariant, PRIORITY_COLORS } from '../../utils/constants';
 import Card from '../../components/ui/Card';
 import Badge from '../../components/ui/Badge';
 import Button from '../../components/ui/Button';
