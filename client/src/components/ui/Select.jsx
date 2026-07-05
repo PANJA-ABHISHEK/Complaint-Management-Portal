@@ -16,7 +16,7 @@ const Select = forwardRef(({
           w-full rounded-xl border bg-white dark:bg-slate-800
           px-4 py-2.5 text-sm text-slate-900 dark:text-slate-100
           transition-all duration-200 cursor-pointer
-          focus:outline-none focus:ring-2 focus:ring-primary-500/50 focus:border-primary-500
+          focus:outline-none focus-visible:ring-2 focus:ring-primary-500/50 focus:border-primary-500
           ${error
             ? 'border-red-400 focus:ring-red-500/50 focus:border-red-500'
             : 'border-slate-200 dark:border-slate-600 hover:border-slate-300 dark:hover:border-slate-500'
