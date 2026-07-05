@@ -18,6 +18,7 @@ const Input = forwardRef(({
         )}
         <input
           ref={ref}
+          autoFocus={props.autoFocus}
           type={type}
           className={`
             w-full rounded-xl border bg-white dark:bg-slate-800
