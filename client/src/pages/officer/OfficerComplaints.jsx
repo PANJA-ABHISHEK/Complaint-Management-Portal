@@ -1,9 +1,10 @@
+import { formatDate } from '../../utils/dateUtils';
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { HiSearch, HiClipboardList } from 'react-icons/hi';
 import { complaintService } from '../../services/dataService';
-import { getStatusVariant, formatDate, PRIORITY_COLORS } from '../../utils/constants';
+import { getStatusVariant, PRIORITY_COLORS } from '../../utils/constants';
 import Badge from '../../components/ui/Badge';
 import Card from '../../components/ui/Card';
 import Button from '../../components/ui/Button';
