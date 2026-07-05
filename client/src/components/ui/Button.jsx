@@ -30,7 +30,7 @@ const Button = ({
       disabled={disabled || loading}
       className={`
         inline-flex items-center justify-center gap-2 font-semibold rounded-xl
-        transition-all duration-200 cursor-pointer
+        transition-all duration-200 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-slate-900
         disabled:opacity-50 disabled:cursor-not-allowed
         ${variants[variant]} ${sizes[size]}
         ${fullWidth ? 'w-full' : ''}
