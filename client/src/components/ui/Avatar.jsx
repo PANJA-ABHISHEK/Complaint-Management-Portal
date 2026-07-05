@@ -13,7 +13,8 @@ const Avatar = ({ src, name = '', size = 'md', className = '' }) => {
       <img
         src={src}
         alt={name}
-        className={`${sizes[size]} rounded-full object-cover ring-2 ring-white dark:ring-slate-700 ${className}`}
+        title={name}
+      className={`${sizes[size]} rounded-full object-cover ring-2 ring-white dark:ring-slate-700 ${className}`}
       />
     );
   }
