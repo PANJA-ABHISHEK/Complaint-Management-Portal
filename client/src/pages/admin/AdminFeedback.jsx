@@ -1,8 +1,9 @@
+import { formatDate } from '../../utils/dateUtils';
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { HiChat, HiStar } from 'react-icons/hi';
 import { adminService } from '../../services/dataService';
-import { formatDate } from '../../utils/constants';
+
 import Card from '../../components/ui/Card';
 import Avatar from '../../components/ui/Avatar';
 import RatingStars from '../../components/ui/RatingStars';
