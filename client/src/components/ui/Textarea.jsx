@@ -18,7 +18,7 @@ const Textarea = forwardRef(({
           px-4 py-2.5 text-sm text-slate-900 dark:text-slate-100
           placeholder:text-slate-400 dark:placeholder:text-slate-500
           transition-all duration-200 resize-none
-          focus:outline-none focus:ring-2 focus:ring-primary-500/50 focus:border-primary-500
+          focus:outline-none focus-visible:ring-2 focus:ring-primary-500/50 focus:border-primary-500
           ${error
             ? 'border-red-400'
             : 'border-slate-200 dark:border-slate-600 hover:border-slate-300'
