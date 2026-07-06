@@ -4,41 +4,46 @@ const Input = forwardRef(({
   label, error, icon: Icon, type = 'text', className = '', ...props
 }, ref) => {
   return (
-    <div className="space-y-1.5">
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', width: '100%' }}>
       {label && (
-        <label className="block text-sm font-medium text-slate-700 dark:text-slate-300">
+        <label style={{ fontSize: '14px', fontWeight: 600, color: '#334155' }} className="dark:text-slate-300">
           {label}
         </label>
       )}
-      <div className="relative">
+      <div style={{ position: 'relative', width: '100%' }}>
         {Icon && (
-          <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
-            <Icon className="h-5 w-5 text-slate-400" />
+          <div style={{ position: 'absolute', top: 0, bottom: 0, left: '14px', display: 'flex', alignItems: 'center', pointerEvents: 'none' }}>
+            <Icon style={{ width: '20px', height: '20px', color: '#94a3b8' }} />
           </div>
         )}
         <input
           ref={ref}
           autoFocus={props.autoFocus}
           type={type}
+          style={{
+            width: '100%',
+            padding: `12px 16px 12px ${Icon ? '44px' : '16px'}`,
+            fontSize: '15px',
+            borderRadius: '12px',
+            border: `1px solid ${error ? '#f87171' : '#e2e8f0'}`,
+            background: '#ffffff',
+            color: '#1e293b',
+            outline: 'none',
+            fontFamily: 'inherit',
+            transition: 'all 0.2s ease',
+            boxSizing: 'border-box'
+          }}
           className={`
-            w-full rounded-xl border bg-white dark:bg-slate-800
-            px-4 py-2.5 text-sm text-slate-900 dark:text-slate-100
-            placeholder:text-slate-400 dark:placeholder:text-slate-500
-            transition-all duration-200
-            focus:outline-none focus-visible:ring-2 focus:ring-primary-500/50 focus:border-primary-500
-            ${Icon ? 'pl-11' : ''}
-            ${error
-              ? 'border-red-400 focus:ring-red-500/50 focus:border-red-500'
-              : 'border-slate-200 dark:border-slate-600 hover:border-slate-300 dark:hover:border-slate-500'
-            }
+            focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20
+            dark:bg-slate-800 dark:border-slate-600 dark:text-white dark:focus:border-primary-500
             ${className}
           `}
           {...props}
         />
       </div>
       {error && (
-        <p className="text-sm text-red-500 flex items-center gap-1">
-          <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+        <p style={{ fontSize: '13px', color: '#ef4444', display: 'flex', alignItems: 'center', gap: '4px', margin: 0 }}>
+          <svg style={{ width: '14px', height: '14px' }} fill="currentColor" viewBox="0 0 20 20">
             <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
           </svg>
           {error}

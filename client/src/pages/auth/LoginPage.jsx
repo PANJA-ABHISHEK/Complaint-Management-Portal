@@ -66,9 +66,23 @@ const LoginPage = () => {
           <button
             type="button"
             onClick={() => setShowPassword(!showPassword)}
-            className="absolute right-4 top-[38px] text-slate-400 hover:text-primary-500 focus:outline-none transition-colors"
+            style={{
+              position: 'absolute',
+              right: '16px',
+              top: '36px', // Align precisely within the input height
+              background: 'transparent',
+              border: 'none',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center'
+            }}
+            className="text-slate-400 hover:text-primary-500 transition-colors"
           >
-            {showPassword ? <HiEyeOff className="w-5 h-5" /> : <HiEye className="w-5 h-5" />}
+            {showPassword 
+              ? <HiEyeOff style={{ width: '20px', height: '20px' }} /> 
+              : <HiEye style={{ width: '20px', height: '20px' }} />
+            }
           </button>
         </div>
 
