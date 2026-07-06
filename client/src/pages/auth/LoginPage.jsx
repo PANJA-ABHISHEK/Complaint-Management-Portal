@@ -4,7 +4,6 @@ import { useForm } from 'react-hook-form';
 import { HiMail, HiLockClosed, HiEye, HiEyeOff } from 'react-icons/hi';
 import toast from 'react-hot-toast';
 import { useAuth } from '../../contexts/AuthContext';
-import Input from '../../components/ui/Input';
 import Button from '../../components/ui/Button';
 
 const LoginPage = () => {
@@ -28,77 +27,162 @@ const LoginPage = () => {
     }
   };
 
+  const inputStyle = {
+    width: '100%',
+    padding: '12px 16px 12px 44px',
+    borderRadius: 12,
+    border: '1.5px solid #e2e8f0',
+    fontSize: 14,
+    color: '#1e293b',
+    background: '#f8fafc',
+    outline: 'none',
+    transition: 'border-color 0.2s, box-shadow 0.2s',
+  };
+
+  const inputFocusHandler = (e) => {
+    e.target.style.borderColor = '#6366f1';
+    e.target.style.boxShadow = '0 0 0 3px rgba(99,102,241,0.15)';
+    e.target.style.background = '#fff';
+  };
+  const inputBlurHandler = (e) => {
+    e.target.style.borderColor = '#e2e8f0';
+    e.target.style.boxShadow = 'none';
+    e.target.style.background = '#f8fafc';
+  };
+
+  const labelStyle = {
+    display: 'block',
+    fontSize: 13,
+    fontWeight: 600,
+    color: '#475569',
+    marginBottom: 8,
+  };
+
+  const iconStyle = {
+    position: 'absolute',
+    left: 14,
+    top: '50%',
+    transform: 'translateY(-50%)',
+    color: '#94a3b8',
+    width: 20,
+    height: 20,
+    pointerEvents: 'none',
+  };
+
   return (
     <div>
-      {/* Mobile Logo */}
-      <div className="lg:hidden" style={{ textAlign: 'center', marginBottom: 24 }}>
-        <div style={{
-          width: 56, height: 56, borderRadius: 16, margin: '0 auto 12px',
-          background: 'linear-gradient(135deg, #6366f1, #8b5cf6)',
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
-          boxShadow: '0 8px 24px rgba(99,102,241,0.3)',
-        }}>
-          <span style={{ color: '#fff', fontWeight: 800, fontSize: 24 }}>CP</span>
-        </div>
-      </div>
-
       {/* Header */}
       <div style={{ textAlign: 'center', marginBottom: 32 }}>
-        <h1 style={{ fontSize: 28, fontWeight: 800, color: '#0f172a', marginBottom: 8 }} className="dark:text-white">
-          Welcome Back
-        </h1>
-        <p style={{ fontSize: 15, color: '#64748b' }} className="dark:text-slate-400">
-          Sign in to your account to continue
-        </p>
+        {/* Mobile logo */}
+        <div className="lg:hidden" style={{ marginBottom: 20 }}>
+          <div style={{
+            width: 56, height: 56, borderRadius: 16,
+            background: 'linear-gradient(135deg, #6366f1, #a855f7)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            margin: '0 auto', boxShadow: '0 8px 24px rgba(99,102,241,0.3)',
+          }}>
+            <span style={{ color: '#fff', fontWeight: 800, fontSize: 22 }}>CP</span>
+          </div>
+        </div>
+        <h1 style={{ fontSize: 28, fontWeight: 800, color: '#0f172a', marginBottom: 6 }}>Welcome Back</h1>
+        <p style={{ fontSize: 14, color: '#64748b', fontWeight: 500 }}>Enter your credentials to access your account</p>
       </div>
 
-      <form onSubmit={handleSubmit(onSubmit)} style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
-        <Input
-          label="Email Address"
-          type="email"
-          icon={HiMail}
-          placeholder="you@example.com"
-          error={errors.email?.message}
-          {...register('email', {
-            required: 'Email is required',
-            pattern: { value: /^\S+@\S+$/i, message: 'Please enter a valid email' },
-          })}
-        />
+      <form onSubmit={handleSubmit(onSubmit)}>
+        {/* Email Field */}
+        <div style={{ marginBottom: 20 }}>
+          <label style={labelStyle}>Email Address</label>
+          <div style={{ position: 'relative' }}>
+            <HiMail style={iconStyle} />
+            <input
+              type="email"
+              placeholder="you@example.com"
+              style={inputStyle}
+              onFocus={inputFocusHandler}
+              onBlur={inputBlurHandler}
+              {...register('email', { required: 'Email is required', pattern: { value: /^\S+@\S+$/i, message: 'Invalid email' } })}
+            />
+          </div>
+          {errors.email && <p style={{ color: '#ef4444', fontSize: 12, marginTop: 6, fontWeight: 500 }}>{errors.email.message}</p>}
+        </div>
 
-        <Input
-          label="Password"
-          type={showPassword ? 'text' : 'password'}
-          icon={HiLockClosed}
-          placeholder="Enter your password"
-          endIcon={showPassword ? HiEyeOff : HiEye}
-          endIconClick={() => setShowPassword(!showPassword)}
-          error={errors.password?.message}
-          {...register('password', {
-            required: 'Password is required',
-            minLength: { value: 6, message: 'Must be at least 6 characters' },
-          })}
-        />
+        {/* Password Field */}
+        <div style={{ marginBottom: 20 }}>
+          <label style={labelStyle}>Password</label>
+          <div style={{ position: 'relative' }}>
+            <HiLockClosed style={iconStyle} />
+            <input
+              type={showPassword ? 'text' : 'password'}
+              placeholder="••••••••"
+              style={{ ...inputStyle, paddingRight: 44 }}
+              onFocus={inputFocusHandler}
+              onBlur={inputBlurHandler}
+              {...register('password', { required: 'Password is required', minLength: { value: 6, message: 'Min 6 characters' } })}
+            />
+            <button
+              type="button"
+              onClick={() => setShowPassword(!showPassword)}
+              style={{
+                position: 'absolute', right: 14, top: '50%', transform: 'translateY(-50%)',
+                background: 'none', border: 'none', cursor: 'pointer', padding: 0,
+                color: '#94a3b8', display: 'flex', alignItems: 'center',
+              }}
+            >
+              {showPassword
+                ? <HiEyeOff style={{ width: 20, height: 20 }} />
+                : <HiEye style={{ width: 20, height: 20 }} />
+              }
+            </button>
+          </div>
+          {errors.password && <p style={{ color: '#ef4444', fontSize: 12, marginTop: 6, fontWeight: 500 }}>{errors.password.message}</p>}
+        </div>
 
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: -4 }}>
-          <label style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer' }}>
-            <input type="checkbox" style={{ width: 16, height: 16, accentColor: '#6366f1', cursor: 'pointer' }} />
-            <span style={{ fontSize: 13, color: '#64748b', fontWeight: 500 }} className="dark:text-slate-400">Remember me</span>
+        {/* Remember Me & Forgot Password */}
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 28 }}>
+          <label style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer', fontSize: 13, color: '#475569', fontWeight: 500 }}>
+            <input
+              type="checkbox"
+              style={{ width: 16, height: 16, accentColor: '#6366f1', borderRadius: 4, cursor: 'pointer' }}
+            />
+            Remember me
           </label>
-          <Link to="/forgot-password" style={{ fontSize: 13, color: '#6366f1', fontWeight: 600, textDecoration: 'none' }}>
+          <Link to="/forgot-password" style={{ fontSize: 13, fontWeight: 600, color: '#6366f1', textDecoration: 'none' }}>
             Forgot password?
           </Link>
         </div>
 
-        <Button type="submit" fullWidth loading={loading} size="lg" style={{ marginTop: 8 }}>
-          Sign In
-        </Button>
+        {/* Submit Button */}
+        <button
+          type="submit"
+          disabled={loading}
+          style={{
+            width: '100%',
+            padding: '14px 24px',
+            borderRadius: 12,
+            border: 'none',
+            background: 'linear-gradient(135deg, #6366f1, #7c3aed)',
+            color: '#fff',
+            fontSize: 15,
+            fontWeight: 700,
+            cursor: loading ? 'not-allowed' : 'pointer',
+            opacity: loading ? 0.7 : 1,
+            transition: 'all 0.2s',
+            boxShadow: '0 8px 24px rgba(99,102,241,0.3)',
+            letterSpacing: 0.3,
+          }}
+          onMouseEnter={(e) => { if (!loading) e.target.style.transform = 'translateY(-1px)'; }}
+          onMouseLeave={(e) => { e.target.style.transform = 'translateY(0)'; }}
+        >
+          {loading ? 'Signing in...' : 'Sign In'}
+        </button>
       </form>
 
-      <div style={{ marginTop: 28, paddingTop: 20, borderTop: '1px solid #e2e8f0', textAlign: 'center' }} className="dark:border-slate-700">
-        <p style={{ fontSize: 14, color: '#64748b' }} className="dark:text-slate-400">
+      {/* Divider & Register link */}
+      <div style={{ marginTop: 28, paddingTop: 24, borderTop: '1px solid #e2e8f0', textAlign: 'center' }}>
+        <p style={{ fontSize: 13, color: '#64748b', fontWeight: 500 }}>
           Don't have an account?{' '}
           <Link to="/register" style={{ color: '#6366f1', fontWeight: 700, textDecoration: 'none' }}>
-            Create Account
+            Create an account
           </Link>
         </p>
       </div>

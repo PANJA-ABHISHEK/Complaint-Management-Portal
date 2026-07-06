@@ -3,89 +3,109 @@ import { motion } from 'framer-motion';
 
 const AuthLayout = () => {
   return (
-    <div style={{ minHeight: '100vh', display: 'flex', backgroundColor: '#f8fafc' }} className="dark:bg-dark-bg">
-      {/* Left Panel - Branding */}
-      <div className="hidden lg:flex" style={{
-        width: '45%', position: 'relative', overflow: 'hidden',
-        background: 'linear-gradient(160deg, #1e1b4b 0%, #312e81 40%, #4338ca 100%)',
-        display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
-        padding: '48px 40px',
-      }}>
-        {/* Background blobs */}
+    <div style={{ minHeight: '100vh', display: 'flex', background: '#f8fafc' }}>
+      {/* Left Branding Panel */}
+      <div
+        className="gradient-hero"
+        style={{
+          display: 'none',
+          width: '50%',
+          position: 'relative',
+          overflow: 'hidden',
+          padding: '48px',
+          alignItems: 'center',
+          justifyContent: 'center',
+          flexDirection: 'column',
+        }}
+        id="auth-left-panel"
+      >
+        {/* Background Orbs */}
         <div style={{ position: 'absolute', inset: 0, pointerEvents: 'none' }}>
-          <div className="animate-pulse-soft" style={{ position: 'absolute', top: '15%', left: '10%', width: 350, height: 350, background: 'rgba(99,102,241,0.25)', borderRadius: '50%', filter: 'blur(80px)' }} />
-          <div className="animate-pulse-soft" style={{ position: 'absolute', bottom: '10%', right: '5%', width: 300, height: 300, background: 'rgba(139,92,246,0.2)', borderRadius: '50%', filter: 'blur(80px)', animationDelay: '1.5s' }} />
+          <div style={{ position: 'absolute', top: '15%', left: '10%', width: 350, height: 350, background: 'rgba(99,102,241,0.15)', borderRadius: '50%', filter: 'blur(80px)' }} />
+          <div style={{ position: 'absolute', bottom: '15%', right: '10%', width: 400, height: 400, background: 'rgba(168,85,247,0.12)', borderRadius: '50%', filter: 'blur(80px)' }} />
         </div>
 
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8 }}
-          style={{ position: 'relative', zIndex: 10, textAlign: 'center', maxWidth: 400 }}
+          style={{ position: 'relative', zIndex: 10, textAlign: 'center', maxWidth: 420, margin: '0 auto' }}
         >
           {/* Logo */}
           <div style={{
             width: 80, height: 80, borderRadius: 24,
-            background: 'linear-gradient(135deg, rgba(255,255,255,0.15), rgba(255,255,255,0.05))',
-            border: '1px solid rgba(255,255,255,0.2)',
-            backdropFilter: 'blur(12px)',
+            background: 'linear-gradient(135deg, #6366f1, #a855f7)',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
-            margin: '0 auto 40px', boxShadow: '0 8px 32px rgba(0,0,0,0.2)',
+            margin: '0 auto 40px',
+            boxShadow: '0 20px 60px rgba(99,102,241,0.35)',
           }}>
-            <span style={{ color: '#fff', fontWeight: 800, fontSize: 32, letterSpacing: '-0.02em' }}>CP</span>
+            <span style={{ color: '#fff', fontWeight: 800, fontSize: 32, letterSpacing: -1 }}>CP</span>
           </div>
 
-          <h1 style={{ fontSize: 36, fontWeight: 800, color: '#ffffff', lineHeight: 1.3, marginBottom: 16 }}>
-            Complaint{' '}
-            <span style={{ display: 'block', color: '#a5b4fc' }}>Management Portal</span>
+          <h1 style={{ color: '#fff', fontWeight: 800, fontSize: 38, lineHeight: 1.2, marginBottom: 16 }}>
+            Welcome to
           </h1>
-
-          <p style={{ fontSize: 16, color: 'rgba(203,213,225,0.85)', lineHeight: 1.7, marginBottom: 48 }}>
-            Your trusted platform for registering, tracking, and resolving civic complaints with total transparency.
+          <h1 style={{
+            fontWeight: 800, fontSize: 38, lineHeight: 1.2, marginBottom: 24,
+            background: 'linear-gradient(to right, #a5b4fc, #c4b5fd)',
+            WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent',
+          }}>
+            Complaint Portal
+          </h1>
+          <p style={{ color: 'rgba(203,213,225,0.9)', fontSize: 16, lineHeight: 1.7, maxWidth: 380, margin: '0 auto' }}>
+            Your trusted platform for registering, tracking, and resolving civic complaints with complete transparency.
           </p>
 
-          {/* Feature cards */}
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, textAlign: 'left' }}>
+          {/* Feature Cards */}
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginTop: 48 }}>
             <div style={{
-              background: 'rgba(255,255,255,0.07)', border: '1px solid rgba(255,255,255,0.12)',
-              borderRadius: 16, padding: 20, backdropFilter: 'blur(8px)',
+              background: 'rgba(255,255,255,0.06)', backdropFilter: 'blur(12px)',
+              border: '1px solid rgba(255,255,255,0.1)', borderRadius: 16, padding: 20, textAlign: 'left',
             }}>
-              <span style={{ fontSize: 24, display: 'block', marginBottom: 10 }}>⚡</span>
-              <h3 style={{ color: '#fff', fontWeight: 700, fontSize: 14, marginBottom: 6 }}>Fast Resolution</h3>
-              <p style={{ color: 'rgba(203,213,225,0.7)', fontSize: 13, lineHeight: 1.5 }}>Avg time under 24 hours</p>
+              <div style={{ fontSize: 24, marginBottom: 10 }}>⚡</div>
+              <h3 style={{ color: '#fff', fontWeight: 600, fontSize: 14, marginBottom: 4 }}>Fast Resolution</h3>
+              <p style={{ color: 'rgba(148,163,184,1)', fontSize: 12, lineHeight: 1.5 }}>Resolved under 24 hours on average.</p>
             </div>
             <div style={{
-              background: 'rgba(255,255,255,0.07)', border: '1px solid rgba(255,255,255,0.12)',
-              borderRadius: 16, padding: 20, backdropFilter: 'blur(8px)',
+              background: 'rgba(255,255,255,0.06)', backdropFilter: 'blur(12px)',
+              border: '1px solid rgba(255,255,255,0.1)', borderRadius: 16, padding: 20, textAlign: 'left',
             }}>
-              <span style={{ fontSize: 24, display: 'block', marginBottom: 10 }}>🛡️</span>
-              <h3 style={{ color: '#fff', fontWeight: 700, fontSize: 14, marginBottom: 6 }}>Secure & Private</h3>
-              <p style={{ color: 'rgba(203,213,225,0.7)', fontSize: 13, lineHeight: 1.5 }}>Data encrypted & safe</p>
+              <div style={{ fontSize: 24, marginBottom: 10 }}>🛡️</div>
+              <h3 style={{ color: '#fff', fontWeight: 600, fontSize: 14, marginBottom: 4 }}>Secure & Private</h3>
+              <p style={{ color: 'rgba(148,163,184,1)', fontSize: 12, lineHeight: 1.5 }}>Your data is encrypted and protected.</p>
             </div>
           </div>
         </motion.div>
       </div>
 
-      {/* Right Panel - Auth Form */}
+      {/* Right Form Panel */}
       <div style={{
         flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center',
-        padding: '40px 24px',
+        padding: '32px 24px',
       }}>
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
-          style={{ width: '100%', maxWidth: 440 }}
-        >
-          <div style={{
-            background: '#ffffff', borderRadius: 24, padding: '40px 36px',
+          style={{
+            width: '100%', maxWidth: 460,
+            background: '#fff',
+            borderRadius: 20,
             border: '1px solid #e2e8f0',
-            boxShadow: '0 4px 6px rgba(0,0,0,0.02), 0 12px 40px rgba(0,0,0,0.06)',
-          }} className="dark:bg-slate-800 dark:border-slate-700">
-            <Outlet />
-          </div>
+            boxShadow: '0 4px 6px -1px rgba(0,0,0,0.04), 0 20px 50px -12px rgba(0,0,0,0.08)',
+            padding: '48px 40px',
+          }}
+        >
+          <Outlet />
         </motion.div>
       </div>
+
+      {/* CSS to show left panel on large screens */}
+      <style>{`
+        @media (min-width: 1024px) {
+          #auth-left-panel { display: flex !important; }
+        }
+      `}</style>
     </div>
   );
 };

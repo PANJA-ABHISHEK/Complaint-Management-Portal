@@ -68,7 +68,7 @@ const Navbar = () => {
             ))}
           </div>
 
-          <div className="hidden md:flex items-center gap-3">
+          <div className="hidden md:flex items-center gap-5">
             <ThemeToggle />
             {isAuthenticated ? (
               <Link to={getDashboardPath()}>
