@@ -11,7 +11,8 @@ import StatCard from '../../components/ui/StatCard';
 import Card from '../../components/ui/Card';
 import Badge from '../../components/ui/Badge';
 import Button from '../../components/ui/Button';
-import { getStatusVariant, formatDate, PRIORITY_COLORS } from '../../utils/constants';
+import { getStatusVariant, PRIORITY_COLORS } from '../../utils/constants';
+import { formatDate } from '../../utils/dateUtils';
 
 const UserDashboard = () => {
   const { user } = useAuth();

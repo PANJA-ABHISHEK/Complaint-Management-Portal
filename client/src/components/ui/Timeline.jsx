@@ -1,6 +1,7 @@
 import { motion } from 'framer-motion';
 import { HiCheck } from 'react-icons/hi';
-import { STATUS_FLOW, getStatusColor, formatDateTime } from '../../utils/constants';
+import { STATUS_FLOW, getStatusColor } from '../../utils/constants';
+import { formatDateTime } from '../../utils/dateUtils';
 
 const Timeline = ({ entries = [], currentStatus }) => {
   const currentStep = STATUS_FLOW.indexOf(currentStatus);
