@@ -1,4 +1,8 @@
-import db from '../config/db.js';
+import Complaint from '../models/Complaint.js';
+import Department from '../models/Department.js';
+import Notification from '../models/Notification.js';
+import ActivityLog from '../models/ActivityLog.js';
+import User from '../models/User.js';
 import { ApiError, asyncHandler, apiResponse } from '../utils/helpers.js';
 import { sendEmail, emailTemplates } from '../utils/email.js';
 
@@ -8,100 +12,93 @@ import { sendEmail, emailTemplates } from '../utils/email.js';
  * @access  Private (User)
  */
 export const createComplaint = asyncHandler(async (req, res) => {
-  const { title, category, department, priority, description, location } = req.body;
+  const { title, category, department: deptName, priority, description, location } = req.body;
 
-  const newComplaint = {
-    _id: db.generateId(),
+  // Lookup department
+  const dept = await Department.findOne({ name: deptName });
+
+  const complaint = await Complaint.create({
     title,
     category,
-    department,
+    departmentName: deptName,
+    department: dept ? dept._id : null,
     priority: priority || 'Medium',
     description,
     location: location || '',
-    status: 'Submitted',
     userId: req.user._id,
-    assignedTo: null,
-    attachments: req.files ? req.files.map((f) => ({
-      filename: f.filename,
-      originalName: f.originalname,
-      path: f.path,
-      size: f.size,
-      mimetype: f.mimetype,
-    })) : [],
-    timeline: [
-      {
-        status: 'Submitted',
-        date: new Date().toISOString(),
-        note: 'Complaint registered successfully.',
-      },
-    ],
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-  };
+    attachments: req.files
+      ? req.files.map((f) => ({
+          filename: f.filename,
+          originalName: f.originalname,
+          path: f.path,
+          size: f.size,
+          mimetype: f.mimetype,
+        }))
+      : [],
+  });
 
-  db.complaints.push(newComplaint);
-
-  // Send notification email
-  const user = db.users.find((u) => u._id === req.user._id);
-  if (user) {
-    sendEmail({
-      to: user.email,
-      ...emailTemplates.complaintRegistered(newComplaint),
-    }).catch(console.error);
-  }
-
-  // Create in-app notification
-  db.notifications.push({
-    _id: db.generateId(),
+  // Notification
+  await Notification.create({
     userId: req.user._id,
     type: 'complaint_created',
     title: 'Complaint Registered',
-    message: `Your complaint "${title}" has been submitted successfully.`,
-    read: false,
-    complaintId: newComplaint._id,
-    createdAt: new Date().toISOString(),
+    message: `Your complaint "${title}" (${complaint.complaintId}) has been submitted.`,
+    complaintId: complaint._id,
+    actionUrl: `/user/complaints/${complaint._id}`,
   });
 
-  apiResponse(res, 201, newComplaint, 'Complaint created successfully');
+  // Email (non-blocking)
+  const user = await User.findById(req.user._id);
+  if (user) {
+    sendEmail({ to: user.email, ...emailTemplates.complaintRegistered(complaint) }).catch(console.error);
+  }
+
+  // Activity log
+  ActivityLog.log({
+    userId: req.user._id,
+    action: 'COMPLAINT_CREATED',
+    resource: 'Complaint',
+    resourceId: complaint._id,
+    description: `Created complaint: ${title} (${complaint.complaintId})`,
+    ipAddress: req.ip,
+  }).catch(console.error);
+
+  apiResponse(res, 201, complaint, 'Complaint created successfully');
 });
 
 /**
- * @desc    Get all complaints for current user
+ * @desc    Get my complaints (with filter, search, pagination)
  * @route   GET /api/complaints
  * @access  Private (User)
  */
 export const getMyComplaints = asyncHandler(async (req, res) => {
-  const { status, priority, category, search, sort, page = 1, limit = 10 } = req.query;
+  const { status, priority, category, search, page = 1, limit = 10, sort = '-createdAt' } = req.query;
 
-  let complaints = db.complaints.filter((c) => c.userId === req.user._id);
+  const filter = { userId: req.user._id };
+  if (status) filter.status = status;
+  if (priority) filter.priority = priority;
+  if (category) filter.category = category;
+  if (search) filter.$text = { $search: search };
 
-  // Filters
-  if (status) complaints = complaints.filter((c) => c.status === status);
-  if (priority) complaints = complaints.filter((c) => c.priority === priority);
-  if (category) complaints = complaints.filter((c) => c.category === category);
-  if (search) {
-    const s = search.toLowerCase();
-    complaints = complaints.filter(
-      (c) => c.title.toLowerCase().includes(s) || c.description.toLowerCase().includes(s)
-    );
-  }
+  const skip = (parseInt(page) - 1) * parseInt(limit);
 
-  // Sort
-  complaints.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-
-  // Pagination
-  const total = complaints.length;
-  const startIndex = (page - 1) * limit;
-  const endIndex = startIndex + parseInt(limit);
-  const paginated = complaints.slice(startIndex, endIndex);
+  const [complaints, total] = await Promise.all([
+    Complaint.find(filter)
+      .sort(sort)
+      .skip(skip)
+      .limit(parseInt(limit))
+      .populate('assignedTo', 'name email')
+      .lean(),
+    Complaint.countDocuments(filter),
+  ]);
 
   apiResponse(res, 200, {
-    complaints: paginated,
+    complaints,
     pagination: {
       total,
       page: parseInt(page),
       limit: parseInt(limit),
-      pages: Math.ceil(total / limit),
+      pages: Math.ceil(total / parseInt(limit)),
     },
   });
 });
@@ -112,108 +109,150 @@ export const getMyComplaints = asyncHandler(async (req, res) => {
  * @access  Private
  */
 export const getComplaintById = asyncHandler(async (req, res) => {
-  const complaint = db.complaints.find((c) => c._id === req.params.id);
+  const complaint = await Complaint.findById(req.params.id)
+    .populate('userId', 'name email phone')
+    .populate('assignedTo', 'name email')
+    .populate('department', 'name code contactEmail')
+    .populate('timeline.updatedBy', 'name role')
+    .populate('resolution.resolvedBy', 'name');
 
-  if (!complaint) {
-    throw new ApiError(404, 'Complaint not found');
-  }
+  if (!complaint) throw new ApiError(404, 'Complaint not found');
 
-  // Users can only see their own complaints
-  if (req.user.role !== 'admin' && complaint.userId !== req.user._id) {
+  // Only owner or admin can view
+  if (req.user.role === 'user' && complaint.userId._id.toString() !== req.user._id.toString()) {
     throw new ApiError(403, 'Not authorized to view this complaint');
   }
 
-  // Attach user info
-  const user = db.users.find((u) => u._id === complaint.userId);
-  const complaintWithUser = {
-    ...complaint,
-    user: user ? { _id: user._id, name: user.name, email: user.email } : null,
-  };
-
-  apiResponse(res, 200, complaintWithUser);
+  apiResponse(res, 200, complaint);
 });
 
 /**
- * @desc    Update own complaint (before it's assigned)
+ * @desc    Update own complaint (only Submitted/Under Review)
  * @route   PUT /api/complaints/:id
  * @access  Private (User - owner only)
  */
 export const updateComplaint = asyncHandler(async (req, res) => {
-  const complaintIndex = db.complaints.findIndex((c) => c._id === req.params.id);
+  const complaint = await Complaint.findById(req.params.id);
+  if (!complaint) throw new ApiError(404, 'Complaint not found');
 
-  if (complaintIndex === -1) {
-    throw new ApiError(404, 'Complaint not found');
-  }
-
-  const complaint = db.complaints[complaintIndex];
-
-  if (complaint.userId !== req.user._id) {
+  if (complaint.userId.toString() !== req.user._id.toString()) {
     throw new ApiError(403, 'Not authorized to update this complaint');
   }
 
   if (!['Submitted', 'Under Review'].includes(complaint.status)) {
-    throw new ApiError(400, 'Cannot modify complaint once it is assigned or in progress');
+    throw new ApiError(400, 'Cannot modify a complaint that is already being processed');
   }
 
-  const { title, category, department, priority, description, location } = req.body;
-
+  const { title, category, departmentName, priority, description, location } = req.body;
   if (title) complaint.title = title;
   if (category) complaint.category = category;
-  if (department) complaint.department = department;
+  if (departmentName) complaint.departmentName = departmentName;
   if (priority) complaint.priority = priority;
   if (description) complaint.description = description;
   if (location) complaint.location = location;
-  complaint.updatedAt = new Date().toISOString();
 
-  db.complaints[complaintIndex] = complaint;
+  await complaint.save();
+
+  ActivityLog.log({
+    userId: req.user._id,
+    action: 'COMPLAINT_UPDATED',
+    resource: 'Complaint',
+    resourceId: complaint._id,
+    description: `Updated complaint: ${complaint.complaintId}`,
+  }).catch(console.error);
 
   apiResponse(res, 200, complaint, 'Complaint updated');
 });
 
 /**
- * @desc    Delete own complaint (only if still Submitted)
+ * @desc    Delete complaint (Submitted only, owner or admin)
  * @route   DELETE /api/complaints/:id
- * @access  Private (User - owner only)
+ * @access  Private
  */
 export const deleteComplaint = asyncHandler(async (req, res) => {
-  const complaintIndex = db.complaints.findIndex((c) => c._id === req.params.id);
+  const complaint = await Complaint.findById(req.params.id);
+  if (!complaint) throw new ApiError(404, 'Complaint not found');
 
-  if (complaintIndex === -1) {
-    throw new ApiError(404, 'Complaint not found');
-  }
-
-  const complaint = db.complaints[complaintIndex];
-
-  if (complaint.userId !== req.user._id && req.user.role !== 'admin') {
+  if (req.user.role !== 'admin' && complaint.userId.toString() !== req.user._id.toString()) {
     throw new ApiError(403, 'Not authorized to delete this complaint');
   }
 
-  if (complaint.status !== 'Submitted' && req.user.role !== 'admin') {
-    throw new ApiError(400, 'Can only delete complaints with Submitted status');
+  if (req.user.role !== 'admin' && complaint.status !== 'Submitted') {
+    throw new ApiError(400, 'Can only delete Submitted complaints');
   }
 
-  db.complaints.splice(complaintIndex, 1);
+  await complaint.deleteOne();
+
+  ActivityLog.log({
+    userId: req.user._id,
+    action: 'COMPLAINT_DELETED',
+    resource: 'Complaint',
+    resourceId: complaint._id,
+    description: `Deleted complaint: ${complaint.complaintId}`,
+  }).catch(console.error);
 
   apiResponse(res, 200, null, 'Complaint deleted');
 });
 
 /**
- * @desc    Get user stats
+ * @desc    Submit feedback for resolved complaint
+ * @route   POST /api/complaints/:id/feedback
+ * @access  Private (User - owner only)
+ */
+export const submitFeedback = asyncHandler(async (req, res) => {
+  const { rating, comment } = req.body;
+
+  const complaint = await Complaint.findById(req.params.id);
+  if (!complaint) throw new ApiError(404, 'Complaint not found');
+
+  if (complaint.userId.toString() !== req.user._id.toString()) {
+    throw new ApiError(403, 'Not authorized');
+  }
+
+  if (!['Resolved', 'Closed'].includes(complaint.status)) {
+    throw new ApiError(400, 'Feedback can only be submitted for resolved complaints');
+  }
+
+  if (complaint.feedback.rating) {
+    throw new ApiError(400, 'Feedback already submitted');
+  }
+
+  complaint.feedback = { rating, comment: comment || '', submittedAt: new Date() };
+  await complaint.save();
+
+  apiResponse(res, 200, complaint, 'Thank you for your feedback!');
+});
+
+/**
+ * @desc    Get my complaint stats
  * @route   GET /api/complaints/stats
  * @access  Private
  */
 export const getMyStats = asyncHandler(async (req, res) => {
-  const complaints = db.complaints.filter((c) => c.userId === req.user._id);
+  const stats = await Complaint.aggregate([
+    { $match: { userId: req.user._id } },
+    {
+      $group: {
+        _id: '$status',
+        count: { $sum: 1 },
+      },
+    },
+  ]);
 
-  const stats = {
-    total: complaints.length,
-    submitted: complaints.filter((c) => c.status === 'Submitted').length,
-    underReview: complaints.filter((c) => c.status === 'Under Review').length,
-    assigned: complaints.filter((c) => c.status === 'Assigned').length,
-    inProgress: complaints.filter((c) => c.status === 'In Progress').length,
-    resolved: complaints.filter((c) => c.status === 'Resolved').length,
-    closed: complaints.filter((c) => c.status === 'Closed').length,
-  };
+  const total = await Complaint.countDocuments({ userId: req.user._id });
 
-  apiResponse(res, 200, stats);
+  const breakdown = stats.reduce((acc, s) => {
+    acc[s._id] = s.count;
+    return acc;
+  }, {});
+
+  apiResponse(res, 200, {
+    total,
+    submitted: breakdown['Submitted'] || 0,
+    underReview: breakdown['Under Review'] || 0,
+    assigned: breakdown['Assigned'] || 0,
+    inProgress: breakdown['In Progress'] || 0,
+    resolved: breakdown['Resolved'] || 0,
+    closed: breakdown['Closed'] || 0,
+  });
 });

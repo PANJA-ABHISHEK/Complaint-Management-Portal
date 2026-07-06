@@ -1,5 +1,6 @@
-import db from '../config/db.js';
+import Notification from '../models/Notification.js';
 import { asyncHandler, apiResponse } from '../utils/helpers.js';
+import { ApiError } from '../utils/helpers.js';
 
 /**
  * @desc    Get user notifications
@@ -7,30 +8,48 @@ import { asyncHandler, apiResponse } from '../utils/helpers.js';
  * @access  Private
  */
 export const getNotifications = asyncHandler(async (req, res) => {
-  const notifications = db.notifications
-    .filter((n) => n.userId === req.user._id)
-    .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+  const { page = 1, limit = 20, unreadOnly } = req.query;
+  const skip = (parseInt(page) - 1) * parseInt(limit);
 
-  const unreadCount = notifications.filter((n) => !n.read).length;
+  const filter = { userId: req.user._id };
+  if (unreadOnly === 'true') filter.read = false;
 
-  apiResponse(res, 200, { notifications, unreadCount });
+  const [notifications, unreadCount, total] = await Promise.all([
+    Notification.find(filter)
+      .sort('-createdAt')
+      .skip(skip)
+      .limit(parseInt(limit))
+      .populate('complaintId', 'complaintId title status')
+      .lean(),
+    Notification.getUnreadCount(req.user._id),
+    Notification.countDocuments(filter),
+  ]);
+
+  apiResponse(res, 200, {
+    notifications,
+    unreadCount,
+    pagination: {
+      total,
+      page: parseInt(page),
+      limit: parseInt(limit),
+      pages: Math.ceil(total / parseInt(limit)),
+    },
+  });
 });
 
 /**
- * @desc    Mark notification as read
+ * @desc    Mark one notification as read
  * @route   PUT /api/notifications/:id/read
  * @access  Private
  */
 export const markAsRead = asyncHandler(async (req, res) => {
-  const notification = db.notifications.find(
-    (n) => n._id === req.params.id && n.userId === req.user._id
+  const notification = await Notification.findOneAndUpdate(
+    { _id: req.params.id, userId: req.user._id },
+    { read: true, readAt: new Date() },
+    { new: true }
   );
 
-  if (!notification) {
-    return res.status(404).json({ success: false, message: 'Notification not found' });
-  }
-
-  notification.read = true;
+  if (!notification) throw new ApiError(404, 'Notification not found');
 
   apiResponse(res, 200, notification, 'Notification marked as read');
 });
@@ -41,9 +60,22 @@ export const markAsRead = asyncHandler(async (req, res) => {
  * @access  Private
  */
 export const markAllAsRead = asyncHandler(async (req, res) => {
-  db.notifications
-    .filter((n) => n.userId === req.user._id && !n.read)
-    .forEach((n) => (n.read = true));
+  const result = await Notification.markAllRead(req.user._id);
+  apiResponse(res, 200, { updated: result.modifiedCount }, 'All notifications marked as read');
+});
 
-  apiResponse(res, 200, null, 'All notifications marked as read');
+/**
+ * @desc    Delete a notification
+ * @route   DELETE /api/notifications/:id
+ * @access  Private
+ */
+export const deleteNotification = asyncHandler(async (req, res) => {
+  const notification = await Notification.findOneAndDelete({
+    _id: req.params.id,
+    userId: req.user._id,
+  });
+
+  if (!notification) throw new ApiError(404, 'Notification not found');
+
+  apiResponse(res, 200, null, 'Notification deleted');
 });

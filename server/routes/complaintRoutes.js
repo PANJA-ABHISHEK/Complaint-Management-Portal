@@ -9,15 +9,16 @@ import {
   getComplaintById,
   updateComplaint,
   deleteComplaint,
+  submitFeedback,
   getMyStats,
 } from '../controllers/complaintController.js';
 
 const router = Router();
 
-// All complaint routes are protected
+// All complaint routes require auth
 router.use(protect);
 
-// @route GET /api/complaints/stats
+// @route GET /api/complaints/stats  (must be before /:id)
 router.get('/stats', getMyStats);
 
 // @route GET /api/complaints
@@ -29,7 +30,11 @@ router.post(
   upload.array('attachments', 5),
   [
     body('title').trim().notEmpty().withMessage('Title is required'),
-    body('category').trim().notEmpty().withMessage('Category is required'),
+    body('category')
+      .trim()
+      .notEmpty()
+      .isIn(['Infrastructure', 'Utilities', 'Sanitation', 'Safety', 'Transportation', 'Environment', 'Health', 'Education', 'Other'])
+      .withMessage('Valid category is required'),
     body('department').trim().notEmpty().withMessage('Department is required'),
     body('description')
       .trim()
@@ -37,8 +42,8 @@ router.post(
       .withMessage('Description must be at least 20 characters'),
     body('priority')
       .optional()
-      .isIn(['Low', 'Medium', 'High'])
-      .withMessage('Priority must be Low, Medium, or High'),
+      .isIn(['Low', 'Medium', 'High', 'Critical'])
+      .withMessage('Priority must be Low, Medium, High, or Critical'),
     body('location').optional().trim(),
   ],
   validate,
@@ -53,11 +58,8 @@ router.put(
   '/:id',
   [
     body('title').optional().trim().notEmpty().withMessage('Title cannot be empty'),
-    body('description')
-      .optional()
-      .trim()
-      .isLength({ min: 20 })
-      .withMessage('Description must be at least 20 characters'),
+    body('description').optional().trim().isLength({ min: 20 }).withMessage('Description must be at least 20 characters'),
+    body('priority').optional().isIn(['Low', 'Medium', 'High', 'Critical']),
   ],
   validate,
   updateComplaint
@@ -65,5 +67,16 @@ router.put(
 
 // @route DELETE /api/complaints/:id
 router.delete('/:id', deleteComplaint);
+
+// @route POST /api/complaints/:id/feedback
+router.post(
+  '/:id/feedback',
+  [
+    body('rating').isInt({ min: 1, max: 5 }).withMessage('Rating must be 1–5'),
+    body('comment').optional().trim(),
+  ],
+  validate,
+  submitFeedback
+);
 
 export default router;

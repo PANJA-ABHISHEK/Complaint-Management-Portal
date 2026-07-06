@@ -1,16 +1,7 @@
-import bcrypt from 'bcryptjs';
-import jwt from 'jsonwebtoken';
-import config from '../config/env.js';
-import db from '../config/db.js';
+import User from '../models/User.js';
+import ActivityLog from '../models/ActivityLog.js';
 import { ApiError, asyncHandler, apiResponse } from '../utils/helpers.js';
 import { sendEmail, emailTemplates } from '../utils/email.js';
-
-/**
- * Generate JWT token
- */
-const generateToken = (id) => {
-  return jwt.sign({ id }, config.jwt.secret, { expiresIn: config.jwt.expire });
-};
 
 /**
  * @desc    Register new user
@@ -21,42 +12,35 @@ export const register = asyncHandler(async (req, res) => {
   const { name, email, password, phone } = req.body;
 
   // Check if user exists
-  const existingUser = db.users.find((u) => u.email === email);
+  const existingUser = await User.findOne({ email });
   if (existingUser) {
     throw new ApiError(400, 'User with this email already exists');
   }
 
-  // Hash password
-  const salt = await bcrypt.genSalt(10);
-  const hashedPassword = await bcrypt.hash(password, salt);
-
-  // Create user
-  const newUser = {
-    _id: db.generateId(),
-    name,
-    email,
-    password: hashedPassword,
-    phone: phone || null,
-    role: 'user',
-    avatar: null,
-    createdAt: new Date().toISOString(),
-  };
-
-  db.users.push(newUser);
+  // Create user (password hashed by pre-save hook)
+  const user = await User.create({ name, email, password, phone });
 
   // Generate token
-  const token = generateToken(newUser._id);
+  const token = user.generateToken();
+
+  // Log activity
+  ActivityLog.log({
+    userId: user._id,
+    action: 'REGISTER',
+    resource: 'User',
+    resourceId: user._id,
+    description: `New user registered: ${name}`,
+    ipAddress: req.ip,
+    userAgent: req.get('user-agent'),
+  }).catch(console.error);
 
   // Send welcome email (non-blocking)
   sendEmail({
     to: email,
-    ...emailTemplates.welcome(newUser),
+    ...emailTemplates.welcome(user),
   }).catch(console.error);
 
-  // Response without password
-  const { password: _, ...userResponse } = newUser;
-
-  apiResponse(res, 201, { token, user: userResponse }, 'Registration successful');
+  apiResponse(res, 201, { token, user: user.toSafeObject() }, 'Registration successful');
 });
 
 /**
@@ -67,33 +51,53 @@ export const register = asyncHandler(async (req, res) => {
 export const login = asyncHandler(async (req, res) => {
   const { email, password } = req.body;
 
-  // Find user
-  const user = db.users.find((u) => u.email === email);
+  // Find user with password field
+  const user = await User.findOne({ email }).select('+password');
   if (!user) {
     throw new ApiError(401, 'Invalid email or password');
   }
 
+  if (!user.isActive) {
+    throw new ApiError(403, 'Account is deactivated. Contact support.');
+  }
+
   // Check password
-  const isMatch = await bcrypt.compare(password, user.password);
+  const isMatch = await user.matchPassword(password);
   if (!isMatch) {
     throw new ApiError(401, 'Invalid email or password');
   }
 
+  // Update last login
+  user.lastLogin = new Date();
+  await user.save({ validateBeforeSave: false });
+
   // Generate token
-  const token = generateToken(user._id);
+  const token = user.generateToken();
 
-  const { password: _, ...userResponse } = user;
+  // Log activity
+  ActivityLog.log({
+    userId: user._id,
+    action: 'LOGIN',
+    resource: 'User',
+    description: `User logged in: ${user.email}`,
+    ipAddress: req.ip,
+    userAgent: req.get('user-agent'),
+  }).catch(console.error);
 
-  apiResponse(res, 200, { token, user: userResponse }, 'Login successful');
+  apiResponse(res, 200, { token, user: user.toSafeObject() }, 'Login successful');
 });
 
 /**
- * @desc    Get current logged in user
+ * @desc    Get current logged-in user
  * @route   GET /api/auth/me
  * @access  Private
  */
 export const getMe = asyncHandler(async (req, res) => {
-  apiResponse(res, 200, { user: req.user });
+  const user = await User.findById(req.user._id)
+    .populate('department', 'name code')
+    .populate('complaints');
+
+  apiResponse(res, 200, { user: user.toSafeObject() });
 });
 
 /**
@@ -103,18 +107,23 @@ export const getMe = asyncHandler(async (req, res) => {
  */
 export const updateProfile = asyncHandler(async (req, res) => {
   const { name, phone } = req.body;
-  const userIndex = db.users.findIndex((u) => u._id === req.user._id);
 
-  if (userIndex === -1) {
-    throw new ApiError(404, 'User not found');
-  }
+  const user = await User.findById(req.user._id);
+  if (!user) throw new ApiError(404, 'User not found');
 
-  if (name) db.users[userIndex].name = name;
-  if (phone) db.users[userIndex].phone = phone;
+  if (name) user.name = name;
+  if (phone) user.phone = phone;
+  await user.save({ validateBeforeSave: false });
 
-  const { password: _, ...userResponse } = db.users[userIndex];
+  ActivityLog.log({
+    userId: user._id,
+    action: 'PROFILE_UPDATED',
+    resource: 'User',
+    resourceId: user._id,
+    description: 'Profile updated',
+  }).catch(console.error);
 
-  apiResponse(res, 200, { user: userResponse }, 'Profile updated');
+  apiResponse(res, 200, { user: user.toSafeObject() }, 'Profile updated');
 });
 
 /**
@@ -125,18 +134,22 @@ export const updateProfile = asyncHandler(async (req, res) => {
 export const changePassword = asyncHandler(async (req, res) => {
   const { currentPassword, newPassword } = req.body;
 
-  const user = db.users.find((u) => u._id === req.user._id);
-  if (!user) {
-    throw new ApiError(404, 'User not found');
-  }
+  const user = await User.findById(req.user._id).select('+password');
+  if (!user) throw new ApiError(404, 'User not found');
 
-  const isMatch = await bcrypt.compare(currentPassword, user.password);
-  if (!isMatch) {
-    throw new ApiError(400, 'Current password is incorrect');
-  }
+  const isMatch = await user.matchPassword(currentPassword);
+  if (!isMatch) throw new ApiError(400, 'Current password is incorrect');
 
-  const salt = await bcrypt.genSalt(10);
-  user.password = await bcrypt.hash(newPassword, salt);
+  user.password = newPassword; // hashed by pre-save hook
+  await user.save();
+
+  ActivityLog.log({
+    userId: user._id,
+    action: 'PASSWORD_CHANGED',
+    resource: 'User',
+    resourceId: user._id,
+    description: 'Password changed',
+  }).catch(console.error);
 
   apiResponse(res, 200, null, 'Password changed successfully');
 });

@@ -8,29 +8,34 @@ import {
   assignComplaint,
   getAllUsers,
   getUserById,
+  toggleUserStatus,
   deleteUser,
   getAdminStats,
+  generateReport,
+  getReports,
+  getDepartments,
+  createDepartment,
+  updateDepartment,
+  getActivityLogs,
 } from '../controllers/adminController.js';
 
 const router = Router();
 
-// All admin routes are protected + admin only
+// All admin routes require auth + admin role
 router.use(protect, authorize('admin'));
 
-// @route GET /api/admin/stats
+// ─── Dashboard ───
 router.get('/stats', getAdminStats);
 
 // ─── Complaints ───
-// @route GET /api/admin/complaints
 router.get('/complaints', getAllComplaints);
 
-// @route PUT /api/admin/complaints/:id/status
 router.put(
   '/complaints/:id/status',
   [
     body('status')
       .notEmpty()
-      .isIn(['Submitted', 'Under Review', 'Assigned', 'In Progress', 'Resolved', 'Closed'])
+      .isIn(['Submitted', 'Under Review', 'Assigned', 'In Progress', 'Resolved', 'Closed', 'Rejected'])
       .withMessage('Invalid status value'),
     body('note').optional().trim(),
   ],
@@ -38,7 +43,6 @@ router.put(
   updateComplaintStatus
 );
 
-// @route PUT /api/admin/complaints/:id/assign
 router.put(
   '/complaints/:id/assign',
   [
@@ -50,13 +54,41 @@ router.put(
 );
 
 // ─── Users ───
-// @route GET /api/admin/users
 router.get('/users', getAllUsers);
-
-// @route GET /api/admin/users/:id
 router.get('/users/:id', getUserById);
-
-// @route DELETE /api/admin/users/:id
+router.put('/users/:id/toggle', toggleUserStatus);
 router.delete('/users/:id', deleteUser);
+
+// ─── Reports ───
+router.get('/reports', getReports);
+router.post(
+  '/reports',
+  [
+    body('type')
+      .notEmpty()
+      .isIn(['daily', 'weekly', 'monthly', 'quarterly', 'annual', 'custom'])
+      .withMessage('Invalid report type'),
+    body('from').notEmpty().isISO8601().withMessage('Valid from date required'),
+    body('to').notEmpty().isISO8601().withMessage('Valid to date required'),
+  ],
+  validate,
+  generateReport
+);
+
+// ─── Departments ───
+router.get('/departments', getDepartments);
+router.post(
+  '/departments',
+  [
+    body('name').trim().notEmpty().withMessage('Name is required'),
+    body('code').trim().notEmpty().withMessage('Code is required'),
+  ],
+  validate,
+  createDepartment
+);
+router.put('/departments/:id', updateDepartment);
+
+// ─── Activity Logs ───
+router.get('/activity', getActivityLogs);
 
 export default router;

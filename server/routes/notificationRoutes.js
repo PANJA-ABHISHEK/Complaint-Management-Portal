@@ -4,19 +4,15 @@ import {
   getNotifications,
   markAsRead,
   markAllAsRead,
+  deleteNotification,
 } from '../controllers/notificationController.js';
 
 const router = Router();
-
 router.use(protect);
 
-// @route GET /api/notifications
 router.get('/', getNotifications);
-
-// @route PUT /api/notifications/read-all
-router.put('/read-all', markAllAsRead);
-
-// @route PUT /api/notifications/:id/read
+router.put('/read-all', markAllAsRead);        // must come before /:id
 router.put('/:id/read', markAsRead);
+router.delete('/:id', deleteNotification);
 
 export default router;
