@@ -3,67 +3,85 @@ import { motion } from 'framer-motion';
 
 const AuthLayout = () => {
   return (
-    <div className="min-h-screen flex bg-slate-50 dark:bg-dark-bg selection:bg-primary-500/30">
-      {/* Left side: Premium Branding */}
-      <div className="hidden lg:flex lg:w-1/2 gradient-hero items-center justify-center p-12 relative overflow-hidden">
-        {/* Animated Background Elements */}
-        <div className="absolute inset-0 overflow-hidden pointer-events-none">
-          <div className="absolute top-1/4 left-1/4 w-[400px] h-[400px] bg-primary-500/20 rounded-full blur-3xl animate-pulse-soft" />
-          <div className="absolute bottom-1/4 right-1/4 w-[500px] h-[500px] bg-secondary-500/20 rounded-full blur-3xl animate-pulse-soft" style={{ animationDelay: '1s' }} />
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full bg-[radial-gradient(circle_at_center,rgba(255,255,255,0.05)_0,transparent_60%)]" />
+    <div style={{ minHeight: '100vh', display: 'flex', backgroundColor: '#f8fafc' }} className="dark:bg-dark-bg">
+      {/* Left Panel - Branding */}
+      <div className="hidden lg:flex" style={{
+        width: '45%', position: 'relative', overflow: 'hidden',
+        background: 'linear-gradient(160deg, #1e1b4b 0%, #312e81 40%, #4338ca 100%)',
+        display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+        padding: '48px 40px',
+      }}>
+        {/* Background blobs */}
+        <div style={{ position: 'absolute', inset: 0, pointerEvents: 'none' }}>
+          <div className="animate-pulse-soft" style={{ position: 'absolute', top: '15%', left: '10%', width: 350, height: 350, background: 'rgba(99,102,241,0.25)', borderRadius: '50%', filter: 'blur(80px)' }} />
+          <div className="animate-pulse-soft" style={{ position: 'absolute', bottom: '10%', right: '5%', width: 300, height: 300, background: 'rgba(139,92,246,0.2)', borderRadius: '50%', filter: 'blur(80px)', animationDelay: '1.5s' }} />
         </div>
 
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, ease: "easeOut" }}
-          className="relative z-10 text-center max-w-lg"
+          transition={{ duration: 0.8 }}
+          style={{ position: 'relative', zIndex: 10, textAlign: 'center', maxWidth: 400 }}
         >
-          {/* Logo Badge */}
-          <div className="w-24 h-24 rounded-[2rem] bg-gradient-to-br from-primary-400 to-secondary-500 p-[1px] mx-auto mb-10 shadow-2xl shadow-primary-500/30">
-            <div className="w-full h-full rounded-[calc(2rem-1px)] bg-white/10 backdrop-blur-xl flex items-center justify-center">
-              <span className="text-white font-extrabold text-4xl tracking-tighter">CP</span>
-            </div>
+          {/* Logo */}
+          <div style={{
+            width: 80, height: 80, borderRadius: 24,
+            background: 'linear-gradient(135deg, rgba(255,255,255,0.15), rgba(255,255,255,0.05))',
+            border: '1px solid rgba(255,255,255,0.2)',
+            backdropFilter: 'blur(12px)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            margin: '0 auto 40px', boxShadow: '0 8px 32px rgba(0,0,0,0.2)',
+          }}>
+            <span style={{ color: '#fff', fontWeight: 800, fontSize: 32, letterSpacing: '-0.02em' }}>CP</span>
           </div>
-          
-          <h1 className="text-4xl sm:text-5xl font-extrabold text-white mb-6 leading-tight">
-            Welcome to <br />
-            <span className="bg-gradient-to-r from-primary-300 to-accent-300 bg-clip-text text-transparent">
-              ComplaintPortal
-            </span>
+
+          <h1 style={{ fontSize: 36, fontWeight: 800, color: '#ffffff', lineHeight: 1.3, marginBottom: 16 }}>
+            Complaint{' '}
+            <span style={{ display: 'block', color: '#a5b4fc' }}>Management Portal</span>
           </h1>
-          <p className="text-lg text-slate-300/90 leading-relaxed font-medium">
+
+          <p style={{ fontSize: 16, color: 'rgba(203,213,225,0.85)', lineHeight: 1.7, marginBottom: 48 }}>
             Your trusted platform for registering, tracking, and resolving civic complaints with total transparency.
           </p>
-          
-          {/* Decorative stats/features */}
-          <div className="grid grid-cols-2 gap-4 mt-12 text-left">
-            <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-5">
-              <div className="w-10 h-10 rounded-xl bg-primary-500/20 flex items-center justify-center mb-3 text-xl">⚡</div>
-              <h3 className="text-white font-semibold mb-1">Fast Resolution</h3>
-              <p className="text-sm text-slate-400">Average time to resolve under 24 hours.</p>
+
+          {/* Feature cards */}
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, textAlign: 'left' }}>
+            <div style={{
+              background: 'rgba(255,255,255,0.07)', border: '1px solid rgba(255,255,255,0.12)',
+              borderRadius: 16, padding: 20, backdropFilter: 'blur(8px)',
+            }}>
+              <span style={{ fontSize: 24, display: 'block', marginBottom: 10 }}>⚡</span>
+              <h3 style={{ color: '#fff', fontWeight: 700, fontSize: 14, marginBottom: 6 }}>Fast Resolution</h3>
+              <p style={{ color: 'rgba(203,213,225,0.7)', fontSize: 13, lineHeight: 1.5 }}>Avg time under 24 hours</p>
             </div>
-            <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-5">
-              <div className="w-10 h-10 rounded-xl bg-emerald-500/20 flex items-center justify-center mb-3 text-xl">🛡️</div>
-              <h3 className="text-white font-semibold mb-1">Secure & Private</h3>
-              <p className="text-sm text-slate-400">Your data is protected and encrypted.</p>
+            <div style={{
+              background: 'rgba(255,255,255,0.07)', border: '1px solid rgba(255,255,255,0.12)',
+              borderRadius: 16, padding: 20, backdropFilter: 'blur(8px)',
+            }}>
+              <span style={{ fontSize: 24, display: 'block', marginBottom: 10 }}>🛡️</span>
+              <h3 style={{ color: '#fff', fontWeight: 700, fontSize: 14, marginBottom: 6 }}>Secure & Private</h3>
+              <p style={{ color: 'rgba(203,213,225,0.7)', fontSize: 13, lineHeight: 1.5 }}>Data encrypted & safe</p>
             </div>
           </div>
         </motion.div>
       </div>
 
-      {/* Right side: Auth Forms */}
-      <div className="flex-1 flex items-center justify-center p-6 sm:p-12 lg:p-16 relative">
-        {/* Mobile decorative background */}
-        <div className="lg:hidden absolute top-0 inset-x-0 h-64 bg-gradient-to-b from-primary-500/10 to-transparent pointer-events-none" />
-        
+      {/* Right Panel - Auth Form */}
+      <div style={{
+        flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center',
+        padding: '40px 24px',
+      }}>
         <motion.div
-          initial={{ opacity: 0, scale: 0.95 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.5, ease: "easeOut" }}
-          className="w-full max-w-[420px] relative z-10"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+          style={{ width: '100%', maxWidth: 440 }}
         >
-          <div className="glass-card p-8 sm:p-10 shadow-2xl">
+          <div style={{
+            background: '#ffffff', borderRadius: 24, padding: '40px 36px',
+            border: '1px solid #e2e8f0',
+            boxShadow: '0 4px 6px rgba(0,0,0,0.02), 0 12px 40px rgba(0,0,0,0.06)',
+          }} className="dark:bg-slate-800 dark:border-slate-700">
             <Outlet />
           </div>
         </motion.div>

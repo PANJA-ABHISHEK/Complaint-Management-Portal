@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
-import { motion } from 'framer-motion';
 import { HiMail, HiLockClosed, HiEye, HiEyeOff } from 'react-icons/hi';
 import toast from 'react-hot-toast';
 import { useAuth } from '../../contexts/AuthContext';
@@ -30,89 +29,76 @@ const LoginPage = () => {
   };
 
   return (
-    <div className="w-full">
-      {/* Mobile Logo (only shows on small screens since left side is hidden) */}
-      <div className="lg:hidden text-center mb-8">
-        <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-primary-500 to-secondary-500 flex items-center justify-center mx-auto mb-4 shadow-lg shadow-primary-500/30">
-          <span className="text-white font-extrabold text-3xl tracking-tighter">CP</span>
+    <div>
+      {/* Mobile Logo */}
+      <div className="lg:hidden" style={{ textAlign: 'center', marginBottom: 24 }}>
+        <div style={{
+          width: 56, height: 56, borderRadius: 16, margin: '0 auto 12px',
+          background: 'linear-gradient(135deg, #6366f1, #8b5cf6)',
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          boxShadow: '0 8px 24px rgba(99,102,241,0.3)',
+        }}>
+          <span style={{ color: '#fff', fontWeight: 800, fontSize: 24 }}>CP</span>
         </div>
       </div>
 
-      <div className="text-center mb-10">
-        <h1 className="text-3xl font-extrabold text-slate-900 dark:text-white mb-2">Welcome Back</h1>
-        <p className="text-slate-500 dark:text-slate-400 font-medium">Please enter your details to sign in</p>
+      {/* Header */}
+      <div style={{ textAlign: 'center', marginBottom: 32 }}>
+        <h1 style={{ fontSize: 28, fontWeight: 800, color: '#0f172a', marginBottom: 8 }} className="dark:text-white">
+          Welcome Back
+        </h1>
+        <p style={{ fontSize: 15, color: '#64748b' }} className="dark:text-slate-400">
+          Sign in to your account to continue
+        </p>
       </div>
 
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+      <form onSubmit={handleSubmit(onSubmit)} style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
         <Input
           label="Email Address"
           type="email"
           icon={HiMail}
           placeholder="you@example.com"
           error={errors.email?.message}
-          {...register('email', { required: 'Email is required', pattern: { value: /^\S+@\S+$/i, message: 'Please enter a valid email' } })}
+          {...register('email', {
+            required: 'Email is required',
+            pattern: { value: /^\S+@\S+$/i, message: 'Please enter a valid email' },
+          })}
         />
 
-        <div className="relative group">
-          <Input
-            label="Password"
-            type={showPassword ? 'text' : 'password'}
-            icon={HiLockClosed}
-            placeholder="••••••••"
-            error={errors.password?.message}
-            {...register('password', { required: 'Password is required', minLength: { value: 6, message: 'Password must be at least 6 characters' } })}
-          />
-          {/* Eye Icon Button adjusted for perfect alignment */}
-          <button
-            type="button"
-            onClick={() => setShowPassword(!showPassword)}
-            style={{
-              position: 'absolute',
-              right: '16px',
-              top: '36px', // Align precisely within the input height
-              background: 'transparent',
-              border: 'none',
-              cursor: 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center'
-            }}
-            className="text-slate-400 hover:text-primary-500 transition-colors"
-          >
-            {showPassword 
-              ? <HiEyeOff style={{ width: '20px', height: '20px' }} /> 
-              : <HiEye style={{ width: '20px', height: '20px' }} />
-            }
-          </button>
-        </div>
+        <Input
+          label="Password"
+          type={showPassword ? 'text' : 'password'}
+          icon={HiLockClosed}
+          placeholder="Enter your password"
+          endIcon={showPassword ? HiEyeOff : HiEye}
+          endIconClick={() => setShowPassword(!showPassword)}
+          error={errors.password?.message}
+          {...register('password', {
+            required: 'Password is required',
+            minLength: { value: 6, message: 'Must be at least 6 characters' },
+          })}
+        />
 
-        <div className="flex items-center justify-between text-sm mt-2">
-          <label className="flex items-center gap-2.5 cursor-pointer group/checkbox">
-            <div className="relative flex items-center justify-center">
-              <input type="checkbox" className="peer appearance-none w-5 h-5 border-2 border-slate-300 rounded focus:ring-2 focus:ring-primary-500/30 checked:bg-primary-500 checked:border-primary-500 transition-all dark:border-slate-600 dark:bg-slate-800" />
-              <svg className="absolute w-3 h-3 text-white opacity-0 peer-checked:opacity-100 pointer-events-none" viewBox="0 0 14 10" fill="none">
-                <path d="M1 5L4.5 8.5L13 1" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-              </svg>
-            </div>
-            <span className="text-slate-600 font-medium select-none group-hover/checkbox:text-slate-900 transition-colors dark:text-slate-400 dark:group-hover/checkbox:text-slate-200">
-              Remember me
-            </span>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: -4 }}>
+          <label style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer' }}>
+            <input type="checkbox" style={{ width: 16, height: 16, accentColor: '#6366f1', cursor: 'pointer' }} />
+            <span style={{ fontSize: 13, color: '#64748b', fontWeight: 500 }} className="dark:text-slate-400">Remember me</span>
           </label>
-          <Link to="/forgot-password" className="text-primary-600 hover:text-primary-700 dark:text-primary-400 dark:hover:text-primary-300 font-semibold transition-colors">
+          <Link to="/forgot-password" style={{ fontSize: 13, color: '#6366f1', fontWeight: 600, textDecoration: 'none' }}>
             Forgot password?
           </Link>
         </div>
 
-        <Button type="submit" fullWidth loading={loading} size="lg" className="mt-8 font-bold tracking-wide shadow-xl shadow-primary-500/20">
-          Sign In to Portal
+        <Button type="submit" fullWidth loading={loading} size="lg" style={{ marginTop: 8 }}>
+          Sign In
         </Button>
       </form>
 
-      <div className="mt-8 pt-6 border-t border-slate-200 dark:border-slate-700/50">
-        <p className="text-center text-sm font-medium text-slate-600 dark:text-slate-400">
+      <div style={{ marginTop: 28, paddingTop: 20, borderTop: '1px solid #e2e8f0', textAlign: 'center' }} className="dark:border-slate-700">
+        <p style={{ fontSize: 14, color: '#64748b' }} className="dark:text-slate-400">
           Don't have an account?{' '}
-          <Link to="/register" className="text-primary-600 hover:text-primary-700 dark:text-primary-400 dark:hover:text-primary-300 font-bold ml-1 transition-colors">
-            Create an account
+          <Link to="/register" style={{ color: '#6366f1', fontWeight: 700, textDecoration: 'none' }}>
+            Create Account
           </Link>
         </p>
       </div>

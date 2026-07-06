@@ -28,20 +28,30 @@ const RegisterPage = () => {
   };
 
   return (
-    <div className="w-full">
+    <div>
       {/* Mobile Logo */}
-      <div className="lg:hidden text-center mb-8">
-        <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-primary-500 to-secondary-500 flex items-center justify-center mx-auto mb-4 shadow-lg shadow-primary-500/30">
-          <span className="text-white font-extrabold text-3xl tracking-tighter">CP</span>
+      <div className="lg:hidden" style={{ textAlign: 'center', marginBottom: 24 }}>
+        <div style={{
+          width: 56, height: 56, borderRadius: 16, margin: '0 auto 12px',
+          background: 'linear-gradient(135deg, #6366f1, #8b5cf6)',
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          boxShadow: '0 8px 24px rgba(99,102,241,0.3)',
+        }}>
+          <span style={{ color: '#fff', fontWeight: 800, fontSize: 24 }}>CP</span>
         </div>
       </div>
 
-      <div className="text-center mb-10">
-        <h1 className="text-3xl font-extrabold text-slate-900 dark:text-white mb-2">Create Account</h1>
-        <p className="text-slate-500 dark:text-slate-400 font-medium">Join us and start resolving issues</p>
+      {/* Header */}
+      <div style={{ textAlign: 'center', marginBottom: 32 }}>
+        <h1 style={{ fontSize: 28, fontWeight: 800, color: '#0f172a', marginBottom: 8 }} className="dark:text-white">
+          Create Account
+        </h1>
+        <p style={{ fontSize: 15, color: '#64748b' }} className="dark:text-slate-400">
+          Get started with your free account
+        </p>
       </div>
 
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+      <form onSubmit={handleSubmit(onSubmit)} style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
         <Input
           label="Full Name"
           icon={HiUser}
@@ -49,14 +59,19 @@ const RegisterPage = () => {
           error={errors.name?.message}
           {...register('name', { required: 'Name is required' })}
         />
+
         <Input
           label="Email Address"
           type="email"
           icon={HiMail}
           placeholder="you@example.com"
           error={errors.email?.message}
-          {...register('email', { required: 'Email is required', pattern: { value: /^\S+@\S+$/i, message: 'Please enter a valid email' } })}
+          {...register('email', {
+            required: 'Email is required',
+            pattern: { value: /^\S+@\S+$/i, message: 'Please enter a valid email' },
+          })}
         />
+
         <Input
           label="Phone Number"
           icon={HiPhone}
@@ -64,48 +79,31 @@ const RegisterPage = () => {
           error={errors.phone?.message}
           {...register('phone')}
         />
-        <div className="relative group">
-          <Input
-            label="Password"
-            type={showPassword ? 'text' : 'password'}
-            icon={HiLockClosed}
-            placeholder="••••••••"
-            error={errors.password?.message}
-            {...register('password', { required: 'Password is required', minLength: { value: 6, message: 'Password must be at least 6 characters' } })}
-          />
-          <button
-            type="button"
-            onClick={() => setShowPassword(!showPassword)}
-            style={{
-              position: 'absolute',
-              right: '16px',
-              top: '36px',
-              background: 'transparent',
-              border: 'none',
-              cursor: 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center'
-            }}
-            className="text-slate-400 hover:text-primary-500 transition-colors"
-          >
-            {showPassword 
-              ? <HiEyeOff style={{ width: '20px', height: '20px' }} /> 
-              : <HiEye style={{ width: '20px', height: '20px' }} />
-            }
-          </button>
-        </div>
 
-        <Button type="submit" fullWidth loading={loading} size="lg" className="mt-8 font-bold tracking-wide shadow-xl shadow-primary-500/20">
+        <Input
+          label="Password"
+          type={showPassword ? 'text' : 'password'}
+          icon={HiLockClosed}
+          placeholder="Create a strong password"
+          endIcon={showPassword ? HiEyeOff : HiEye}
+          endIconClick={() => setShowPassword(!showPassword)}
+          error={errors.password?.message}
+          {...register('password', {
+            required: 'Password is required',
+            minLength: { value: 6, message: 'Must be at least 6 characters' },
+          })}
+        />
+
+        <Button type="submit" fullWidth loading={loading} size="lg" style={{ marginTop: 8 }}>
           Create Account
         </Button>
       </form>
 
-      <div className="mt-8 pt-6 border-t border-slate-200 dark:border-slate-700/50">
-        <p className="text-center text-sm font-medium text-slate-600 dark:text-slate-400">
+      <div style={{ marginTop: 28, paddingTop: 20, borderTop: '1px solid #e2e8f0', textAlign: 'center' }} className="dark:border-slate-700">
+        <p style={{ fontSize: 14, color: '#64748b' }} className="dark:text-slate-400">
           Already have an account?{' '}
-          <Link to="/login" className="text-primary-600 hover:text-primary-700 dark:text-primary-400 dark:hover:text-primary-300 font-bold ml-1 transition-colors">
-            Sign In here
+          <Link to="/login" style={{ color: '#6366f1', fontWeight: 700, textDecoration: 'none' }}>
+            Sign In
           </Link>
         </p>
       </div>
