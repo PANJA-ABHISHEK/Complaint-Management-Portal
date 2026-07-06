@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
-import { motion } from 'framer-motion';
 import { HiMail, HiLockClosed, HiUser, HiPhone, HiEye, HiEyeOff } from 'react-icons/hi';
 import toast from 'react-hot-toast';
 import { useAuth } from '../../contexts/AuthContext';
@@ -29,16 +28,20 @@ const RegisterPage = () => {
   };
 
   return (
-    <div>
-      <div className="text-center mb-8">
-        <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} className="w-14 h-14 rounded-2xl bg-gradient-to-br from-primary-500 to-secondary-500 flex items-center justify-center mx-auto mb-4">
-          <span className="text-white font-bold text-2xl">C</span>
-        </motion.div>
-        <h1 className="text-2xl font-bold text-slate-900 dark:text-white">Create Account</h1>
-        <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">Get started with your free account</p>
+    <div className="w-full">
+      {/* Mobile Logo */}
+      <div className="lg:hidden text-center mb-8">
+        <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-primary-500 to-secondary-500 flex items-center justify-center mx-auto mb-4 shadow-lg shadow-primary-500/30">
+          <span className="text-white font-extrabold text-3xl tracking-tighter">CP</span>
+        </div>
       </div>
 
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+      <div className="text-center mb-10">
+        <h1 className="text-3xl font-extrabold text-slate-900 dark:text-white mb-2">Create Account</h1>
+        <p className="text-slate-500 dark:text-slate-400 font-medium">Join us and start resolving issues</p>
+      </div>
+
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
         <Input
           label="Full Name"
           icon={HiUser}
@@ -47,49 +50,51 @@ const RegisterPage = () => {
           {...register('name', { required: 'Name is required' })}
         />
         <Input
-          label="Email"
+          label="Email Address"
           type="email"
           icon={HiMail}
           placeholder="you@example.com"
           error={errors.email?.message}
-          {...register('email', { required: 'Email is required', pattern: { value: /^\S+@\S+$/i, message: 'Invalid email' } })}
+          {...register('email', { required: 'Email is required', pattern: { value: /^\S+@\S+$/i, message: 'Please enter a valid email' } })}
         />
         <Input
-          label="Phone"
+          label="Phone Number"
           icon={HiPhone}
           placeholder="+91 9876543210"
           error={errors.phone?.message}
           {...register('phone')}
         />
-        <div className="relative">
+        <div className="relative group">
           <Input
             label="Password"
             type={showPassword ? 'text' : 'password'}
             icon={HiLockClosed}
             placeholder="••••••••"
             error={errors.password?.message}
-            {...register('password', { required: 'Password is required', minLength: { value: 6, message: 'Min 6 characters' } })}
+            {...register('password', { required: 'Password is required', minLength: { value: 6, message: 'Password must be at least 6 characters' } })}
           />
           <button
             type="button"
             onClick={() => setShowPassword(!showPassword)}
-            className="absolute right-3 top-9 text-slate-400 hover:text-slate-600 cursor-pointer"
+            className="absolute right-4 top-[38px] text-slate-400 hover:text-primary-500 focus:outline-none transition-colors"
           >
             {showPassword ? <HiEyeOff className="w-5 h-5" /> : <HiEye className="w-5 h-5" />}
           </button>
         </div>
 
-        <Button type="submit" fullWidth loading={loading} size="lg">
+        <Button type="submit" fullWidth loading={loading} size="lg" className="mt-8 font-bold tracking-wide shadow-xl shadow-primary-500/20">
           Create Account
         </Button>
       </form>
 
-      <p className="text-center text-sm text-slate-500 dark:text-slate-400 mt-6">
-        Already have an account?{' '}
-        <Link to="/login" className="text-primary-500 hover:text-primary-600 font-semibold">
-          Sign In
-        </Link>
-      </p>
+      <div className="mt-8 pt-6 border-t border-slate-200 dark:border-slate-700/50">
+        <p className="text-center text-sm font-medium text-slate-600 dark:text-slate-400">
+          Already have an account?{' '}
+          <Link to="/login" className="text-primary-600 hover:text-primary-700 dark:text-primary-400 dark:hover:text-primary-300 font-bold ml-1 transition-colors">
+            Sign In here
+          </Link>
+        </p>
+      </div>
     </div>
   );
 };
