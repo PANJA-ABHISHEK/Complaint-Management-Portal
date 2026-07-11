@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { api } from '../services/api';
 import { Link } from 'react-router-dom';
 import { FiSearch, FiSliders } from 'react-icons/fi';
@@ -10,7 +10,7 @@ const MyComplaints = () => {
   const [statusFilter, setStatusFilter] = useState('');
   const [priorityFilter, setPriorityFilter] = useState('');
 
-  const fetchComplaints = async () => {
+  const fetchComplaints = useCallback(async () => {
     try {
       setLoading(true);
       let query = '';
@@ -32,11 +32,11 @@ const MyComplaints = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [statusFilter, priorityFilter, search]);
 
   useEffect(() => {
     fetchComplaints();
-  }, [statusFilter, priorityFilter]);
+  }, [fetchComplaints]);
 
   const handleSearchSubmit = (e) => {
     e.preventDefault();

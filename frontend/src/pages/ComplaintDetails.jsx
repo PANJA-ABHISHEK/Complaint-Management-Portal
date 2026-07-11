@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { api } from '../services/api';
 import { useAuth } from '../context/AuthContext';
@@ -22,7 +22,7 @@ const ComplaintDetails = () => {
   // Close ticket states
   const [closingTicket, setClosingTicket] = useState(false);
 
-  const fetchComplaintDetails = async () => {
+  const fetchComplaintDetails = useCallback(async () => {
     try {
       setLoading(true);
       const data = await api.get(`/complaints/${id}`);
@@ -37,11 +37,11 @@ const ComplaintDetails = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [id, showToast, navigate]);
 
   useEffect(() => {
     fetchComplaintDetails();
-  }, [id]);
+  }, [fetchComplaintDetails]);
 
   const handleFeedbackSubmit = async (e) => {
     e.preventDefault();

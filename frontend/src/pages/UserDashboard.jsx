@@ -2,13 +2,20 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { api } from '../services/api';
 import { Link } from 'react-router-dom';
-import { FiPlus, FiAlertCircle, FiFolder, FiCheckSquare, FiArchive } from 'react-icons/fi';
+import { FiPlus, FiAlertCircle, FiFolder, FiCheckSquare, FiArchive, FiMessageSquare, FiX, FiStar } from 'react-icons/fi';
 
 const UserDashboard = () => {
   const { user } = useAuth();
   const [stats, setStats] = useState({ total: 0, pending: 0, resolved: 0, closed: 0 });
   const [recentComplaints, setRecentComplaints] = useState([]);
   const [loading, setLoading] = useState(true);
+
+  // Platform Feedback Modal State
+  const [showFeedbackModal, setShowFeedbackModal] = useState(false);
+  const [feedbackRating, setFeedbackRating] = useState(5);
+  const [feedbackComment, setFeedbackComment] = useState('');
+  const [submittingFeedback, setSubmittingFeedback] = useState(false);
+  const { showToast } = useAuth();
 
   useEffect(() => {
     const fetchDashboard = async () => {
@@ -26,6 +33,29 @@ const UserDashboard = () => {
     };
     fetchDashboard();
   }, []);
+
+  const handleFeedbackSubmit = async (e) => {
+    e.preventDefault();
+    if (!feedbackComment.trim()) {
+      showToast('Please provide a comment', 'error');
+      return;
+    }
+    
+    setSubmittingFeedback(true);
+    try {
+      const res = await api.post('/platform-feedback', { rating: feedbackRating, comment: feedbackComment });
+      if (res.success) {
+        showToast('Thank you! Your feedback has been published.', 'success');
+        setShowFeedbackModal(false);
+        setFeedbackComment('');
+        setFeedbackRating(5);
+      }
+    } catch (err) {
+      showToast(err.message, 'error');
+    } finally {
+      setSubmittingFeedback(false);
+    }
+  };
 
   if (loading) {
     return (
@@ -58,12 +88,20 @@ const UserDashboard = () => {
               Manage your civic grievances, track live resolution statuses, and help build a better community.
             </p>
           </div>
-          <Link
-            to="/new-complaint"
-            className="px-6 py-3.5 text-sm font-bold bg-white text-brand-700 hover:bg-brand-50 rounded-xl flex items-center gap-2 shadow-lg shadow-brand-900/20 transition-all active:scale-95"
-          >
-            <FiPlus className="text-lg" /> File New Complaint
-          </Link>
+          <div className="flex flex-col sm:flex-row gap-3">
+            <button
+              onClick={() => setShowFeedbackModal(true)}
+              className="px-6 py-3.5 text-sm font-bold bg-white/10 border border-white/20 text-white hover:bg-white/20 rounded-xl flex items-center justify-center gap-2 backdrop-blur-md transition-all active:scale-95"
+            >
+              <FiMessageSquare className="text-lg" /> Give Feedback
+            </button>
+            <Link
+              to="/new-complaint"
+              className="px-6 py-3.5 text-sm font-bold bg-white text-brand-700 hover:bg-brand-50 rounded-xl flex items-center justify-center gap-2 shadow-lg shadow-brand-900/20 transition-all active:scale-95"
+            >
+              <FiPlus className="text-lg" /> File New Complaint
+            </Link>
+          </div>
         </div>
       </div>
 
@@ -176,6 +214,73 @@ const UserDashboard = () => {
           )}
         </div>
       </div>
+
+      {/* Feedback Modal */}
+      {showFeedbackModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 backdrop-blur-sm p-4">
+          <div className="bg-white rounded-3xl w-full max-w-lg shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-200">
+            <div className="p-6 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
+              <h3 className="font-extrabold text-slate-800 text-lg flex items-center gap-2">
+                <FiMessageSquare className="text-brand-600" /> Platform Feedback
+              </h3>
+              <button onClick={() => setShowFeedbackModal(false)} className="w-8 h-8 flex items-center justify-center rounded-full bg-slate-200 text-slate-500 hover:bg-rose-100 hover:text-rose-600 transition-colors">
+                <FiX />
+              </button>
+            </div>
+            
+            <form onSubmit={handleFeedbackSubmit} className="p-6 sm:p-8 flex flex-col gap-6">
+              <div>
+                <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-3">
+                  Rate your experience
+                </label>
+                <div className="flex gap-2">
+                  {[1, 2, 3, 4, 5].map((star) => (
+                    <button
+                      key={star}
+                      type="button"
+                      onClick={() => setFeedbackRating(star)}
+                      className={`text-3xl transition-transform hover:scale-110 ${feedbackRating >= star ? 'text-amber-400' : 'text-slate-200'}`}
+                    >
+                      <FiStar fill={feedbackRating >= star ? 'currentColor' : 'none'} />
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-3">
+                  Share your testimonial
+                </label>
+                <textarea
+                  value={feedbackComment}
+                  onChange={(e) => setFeedbackComment(e.target.value)}
+                  placeholder="How was your experience using the portal? Your testimonial will be displayed on the main page."
+                  rows={4}
+                  className="w-full px-5 py-4 rounded-2xl border border-slate-200 bg-slate-50 focus:bg-white focus:outline-none focus:ring-4 focus:ring-brand-500/10 focus:border-brand-500 text-sm font-medium transition-all resize-none"
+                  required
+                />
+              </div>
+
+              <div className="flex gap-3 pt-4">
+                <button
+                  type="button"
+                  onClick={() => setShowFeedbackModal(false)}
+                  className="flex-1 py-3.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-sm rounded-xl transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={submittingFeedback}
+                  className="flex-1 py-3.5 bg-brand-600 hover:bg-brand-500 text-white font-bold text-sm rounded-xl shadow-lg shadow-brand-500/20 transition-colors disabled:opacity-50"
+                >
+                  {submittingFeedback ? 'Publishing...' : 'Publish Testimonial'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

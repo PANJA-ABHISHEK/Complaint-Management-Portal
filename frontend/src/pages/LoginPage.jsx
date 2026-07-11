@@ -27,9 +27,11 @@ const LoginPage = () => {
     const res = await login(email, password);
     setLoading(false);
 
-    if (res.success) {
-      if (activeTab === 'admin') {
+    if (res.success && res.user) {
+      if (res.user.role === 'admin') {
         navigate('/admin/dashboard');
+      } else if (res.user.role === 'officer') {
+        navigate('/officer/dashboard');
       } else {
         navigate('/dashboard');
       }
@@ -147,7 +149,7 @@ const LoginPage = () => {
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder={activeTab === 'admin' ? 'officer@portal.gov.in' : 'name@example.com'}
+                  placeholder={activeTab === 'admin' ? 'admin@city.gov.in' : 'citizen@gmail.com'}
                   className="w-full px-4 py-3.5 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500 transition-colors text-sm font-medium text-slate-800 placeholder-slate-400"
                   required
                 />
@@ -234,7 +236,7 @@ const LoginPage = () => {
                   type="email"
                   value={forgotEmail}
                   onChange={(e) => setForgotEmail(e.target.value)}
-                  placeholder="name@example.com"
+                  placeholder="citizen@gmail.com"
                   className="w-full px-4 py-3 rounded-xl border border-slate-200 text-sm font-medium focus:ring-2 focus:ring-brand-500 focus:outline-none"
                   required
                 />

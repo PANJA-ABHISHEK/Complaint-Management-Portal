@@ -1,9 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { api } from '../services/api';
 import { Link } from 'react-router-dom';
-import { FiSearch, FiSliders, FiEye, FiUserCheck } from 'react-icons/fi';
+import { useAuth } from '../context/AuthContext';
+import { FiSearch, FiSliders, FiEye } from 'react-icons/fi';
 
 const AdminComplaints = () => {
+  const { isOfficer } = useAuth();
   const [complaints, setComplaints] = useState([]);
   const [departments, setDepartments] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -14,7 +16,7 @@ const AdminComplaints = () => {
   const [priority, setPriority] = useState('');
   const [department, setDepartment] = useState('');
 
-  const fetchComplaints = async () => {
+  const fetchComplaints = useCallback(async () => {
     try {
       setLoading(true);
       let query = '';
@@ -28,7 +30,8 @@ const AdminComplaints = () => {
         query = `?${params.join('&')}`;
       }
 
-      const data = await api.get(`/complaints/all${query}`);
+      const endpoint = isOfficer ? '/complaints/department' : '/complaints/all';
+      const data = await api.get(`${endpoint}${query}`);
       if (data.success) {
         setComplaints(data.complaints);
       }
@@ -37,7 +40,7 @@ const AdminComplaints = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [status, priority, department, search, isOfficer]);
 
   useEffect(() => {
     const fetchDependencies = async () => {
@@ -55,7 +58,7 @@ const AdminComplaints = () => {
 
   useEffect(() => {
     fetchComplaints();
-  }, [status, priority, department]);
+  }, [fetchComplaints]);
 
   const handleSearch = (e) => {
     e.preventDefault();
@@ -153,21 +156,23 @@ const AdminComplaints = () => {
             </select>
           </div>
 
-          <div className="flex items-center gap-3">
-            <span className="text-slate-500 text-xs font-bold">DEPARTMENT</span>
-            <select
-              value={department}
-              onChange={(e) => setDepartment(e.target.value)}
-              className="px-4 py-2 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-brand-500/20 text-sm font-medium text-slate-700 cursor-pointer"
-            >
-              <option value="">All Departments</option>
-              {departments.map((dept) => (
-                <option key={dept._id} value={dept._id}>
-                  {dept.name}
-                </option>
-              ))}
-            </select>
-          </div>
+          {!isOfficer && (
+            <div className="flex items-center gap-3">
+              <span className="text-slate-500 text-xs font-bold">DEPARTMENT</span>
+              <select
+                value={department}
+                onChange={(e) => setDepartment(e.target.value)}
+                className="px-4 py-2 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-brand-500/20 text-sm font-medium text-slate-700 cursor-pointer"
+              >
+                <option value="">All Departments</option>
+                {departments.map((dept) => (
+                  <option key={dept._id} value={dept._id}>
+                    {dept.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
         </div>
       </div>
 
@@ -207,7 +212,7 @@ const AdminComplaints = () => {
                 {complaints.map((c) => (
                   <tr key={c._id} className="hover:bg-slate-50/80 transition-colors group">
                     <td className="py-5 px-6 lg:px-8 font-extrabold text-brand-600">
-                      <Link to={`/admin/complaint/${c._id}`} className="hover:underline">{c.complaintId}</Link>
+                      <Link to={isOfficer ? `/officer/complaint/${c._id}` : `/admin/complaint/${c._id}`} className="hover:underline">{c.complaintId}</Link>
                     </td>
                     <td className="py-5 px-6 lg:px-8 font-semibold text-slate-800 truncate max-w-[200px]">{c.title}</td>
                     <td className="py-5 px-6 lg:px-8">
@@ -235,7 +240,7 @@ const AdminComplaints = () => {
                     </td>
                     <td className="py-5 px-6 lg:px-8 text-center">
                       <Link
-                        to={`/admin/complaint/${c._id}`}
+                        to={isOfficer ? `/officer/complaint/${c._id}` : `/admin/complaint/${c._id}`}
                         className="inline-flex items-center justify-center p-2.5 bg-white border border-slate-200 hover:border-brand-300 hover:bg-brand-50 hover:text-brand-600 text-slate-400 rounded-xl transition-all shadow-sm group-hover:shadow-md"
                         title="View Details"
                       >

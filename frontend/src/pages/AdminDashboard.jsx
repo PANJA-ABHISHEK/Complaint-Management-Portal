@@ -13,7 +13,6 @@ const AdminDashboard = () => {
   
   const [stats, setStats] = useState({ total: 0, pending: 0, resolved: 0, closed: 0, slaBreach: 0, avgResolutionTimeHours: 0 });
   const [prioritySplit, setPrioritySplit] = useState({});
-  const [statusSplit, setStatusSplit] = useState({});
   const [categorySplit, setCategorySplit] = useState([]);
   const [monthlyTrend, setMonthlyTrend] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -28,7 +27,6 @@ const AdminDashboard = () => {
         if (data.success) {
           setStats(data.stats);
           setPrioritySplit(data.prioritySplit);
-          setStatusSplit(data.statusSplit);
           setCategorySplit(data.categorySplit);
           setMonthlyTrend(data.monthlyTrend);
         }
@@ -44,13 +42,14 @@ const AdminDashboard = () => {
           setBreaches(activeBreaches.slice(0, 5)); // show top 5
         }
       } catch (err) {
+        console.error(err);
         showToast('Error loading stats', 'error');
       } finally {
         setLoading(false);
       }
     };
     fetchAdminStats();
-  }, []);
+  }, [showToast]);
 
   if (loading) {
     return (

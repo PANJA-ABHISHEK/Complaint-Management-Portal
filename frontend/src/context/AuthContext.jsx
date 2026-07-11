@@ -50,7 +50,7 @@ export const AuthProvider = ({ children }) => {
         localStorage.setItem('token', data.token);
         setUser(data.user);
         showToast('Logged in successfully', 'success');
-        return { success: true };
+        return { success: true, user: data.user };
       }
     } catch (err) {
       showToast(err.message || 'Login failed', 'error');
@@ -99,6 +99,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   const isAdmin = user && user.role === 'admin';
+  const isOfficer = user && user.role === 'officer';
 
   return (
     <AuthContext.Provider
@@ -106,6 +107,7 @@ export const AuthProvider = ({ children }) => {
         user,
         loading,
         isAdmin,
+        isOfficer,
         login,
         register,
         logout,
@@ -147,4 +149,5 @@ export const AuthProvider = ({ children }) => {
   );
 };
 
+// eslint-disable-next-line
 export const useAuth = () => useContext(AuthContext);

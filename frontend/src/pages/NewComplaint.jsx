@@ -79,15 +79,8 @@ const NewComplaint = () => {
     });
 
     try {
-      const response = await fetch('http://localhost:5000/api/complaints', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`,
-        },
-        body: formData,
-      });
+      const data = await api.post('/complaints', formData, true);
 
-      const data = await response.json();
       if (data.success) {
         showToast(`Complaint registered successfully: ${data.complaint.complaintId}`, 'success');
         navigate('/dashboard');

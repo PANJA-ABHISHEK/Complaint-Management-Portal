@@ -105,7 +105,7 @@ const RegisterPage = () => {
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder="name@example.com"
+                  placeholder="citizen@gmail.com"
                   className="w-full px-4 py-3.5 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500 transition-colors text-sm font-medium text-slate-800 placeholder-slate-400"
                   required
                 />

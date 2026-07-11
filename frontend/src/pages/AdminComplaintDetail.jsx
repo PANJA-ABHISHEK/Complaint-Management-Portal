@@ -1,9 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { api } from '../services/api';
 import { useAuth } from '../context/AuthContext';
 import {
-  FiCalendar, FiMapPin, FiUser, FiPaperclip, FiArrowLeft,
+  FiMapPin, FiUser, FiPaperclip, FiArrowLeft,
   FiClock, FiStar, FiFileText, FiUserCheck, FiActivity
 } from 'react-icons/fi';
 
@@ -27,7 +27,7 @@ const AdminComplaintDetail = () => {
   const [resolutionNotes, setResolutionNotes] = useState('');
   const [submittingAction, setSubmittingAction] = useState(false);
 
-  const fetchDetails = async () => {
+  const fetchDetails = useCallback(async () => {
     try {
       setLoading(true);
       const data = await api.get(`/complaints/${id}`);
@@ -59,11 +59,11 @@ const AdminComplaintDetail = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [id, navigate, showToast]);
 
   useEffect(() => {
     fetchDetails();
-  }, [id]);
+  }, [fetchDetails]);
 
   const handleAssignSubmit = async (e) => {
     e.preventDefault();

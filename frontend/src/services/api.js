@@ -12,7 +12,11 @@ const initMockDB = () => {
 
   const mockUsers = [
     { _id: 'admin-id', name: 'Portal Administrator', email: 'admin@portal.gov.in', role: 'admin', status: 'active', createdAt: '2026-06-01T00:00:00.000Z' },
-    { _id: 'officer-id', name: 'Officer John (Water Dept)', email: 'officer.water@portal.gov.in', role: 'admin', status: 'active', createdAt: '2026-06-02T00:00:00.000Z' },
+    { _id: 'officer-id', name: 'Officer John (Water Dept)', email: 'officer.water@portal.gov.in', role: 'officer', assignedDepartment: '1', status: 'active', createdAt: '2026-06-02T00:00:00.000Z' },
+    { _id: 'officer-elec', name: 'Officer Sarah (Electricity)', email: 'officer.electricity@portal.gov.in', role: 'officer', assignedDepartment: '2', status: 'active', createdAt: '2026-06-02T00:00:00.000Z' },
+    { _id: 'officer-san', name: 'Officer Mike (Sanitation)', email: 'officer.sanitation@portal.gov.in', role: 'officer', assignedDepartment: '3', status: 'active', createdAt: '2026-06-02T00:00:00.000Z' },
+    { _id: 'officer-road', name: 'Officer Dave (Roads)', email: 'officer.roads@portal.gov.in', role: 'officer', assignedDepartment: '4', status: 'active', createdAt: '2026-06-02T00:00:00.000Z' },
+    { _id: 'officer-health', name: 'Officer Lisa (Health)', email: 'officer.health@portal.gov.in', role: 'officer', assignedDepartment: '5', status: 'active', createdAt: '2026-06-02T00:00:00.000Z' },
     { _id: 'user-id', name: 'Aromal Kumar', email: 'aromal@gmail.com', role: 'user', status: 'active', createdAt: '2026-06-03T00:00:00.000Z' },
     { _id: 'user-id-2', name: 'Rohan Sharma', email: 'rohan@gmail.com', role: 'user', status: 'active', createdAt: '2026-06-04T00:00:00.000Z' }
   ];
@@ -110,12 +114,37 @@ const initMockDB = () => {
     c4: { _id: 'f1', complaintId: 'c4', rating: 5, comment: 'Thank you for the quick action! The health workers were professional and sprayed the chemicals thoroughly.', createdAt: '2026-07-07T02:00:00.000Z' }
   };
 
+  const mockPlatformFeedbacks = [
+    {
+      _id: 'pf1',
+      user: { name: 'Aromal Kumar', role: 'user', image: '11' },
+      comment: 'File submission was seamless. The water leakage was resolved within 24 hours of reporting, and I was updated with SMS and timeline logs. Excellent initiative by the government.',
+      rating: 5,
+      createdAt: '2026-07-07T09:00:00.000Z'
+    },
+    {
+      _id: 'pf2',
+      user: { name: 'Rohan Sharma', role: 'user', image: '12' },
+      comment: 'The street light issue in our area has been pending for months. After registering a ticket here, the status was updated and fixed within 3 days. The transparency is brilliant.',
+      rating: 4,
+      createdAt: '2026-07-06T11:00:00.000Z'
+    },
+    {
+      _id: 'pf3',
+      user: { name: 'Manoj Dev', role: 'admin', image: '14' },
+      comment: 'As an administrator, compiling monthly reports and routing cases to field staff takes only a click. It has simplified municipal management immensely for our whole team.',
+      rating: 5,
+      createdAt: '2026-07-05T14:00:00.000Z'
+    }
+  ];
+
   if (!localStorage.getItem('mock_departments')) localStorage.setItem('mock_departments', JSON.stringify(mockDepts));
   if (!localStorage.getItem('mock_users')) localStorage.setItem('mock_users', JSON.stringify(mockUsers));
   if (!localStorage.getItem('mock_complaints')) localStorage.setItem('mock_complaints', JSON.stringify(mockComplaints));
   if (!localStorage.getItem('mock_timelines')) localStorage.setItem('mock_timelines', JSON.stringify(mockTimelines));
   if (!localStorage.getItem('mock_notifications')) localStorage.setItem('mock_notifications', JSON.stringify(mockNotifications));
   if (!localStorage.getItem('mock_feedbacks')) localStorage.setItem('mock_feedbacks', JSON.stringify(mockFeedbacks));
+  if (!localStorage.getItem('mock_platform_feedbacks')) localStorage.setItem('mock_platform_feedbacks', JSON.stringify(mockPlatformFeedbacks));
 };
 
 class ApiService {
@@ -160,7 +189,7 @@ class ApiService {
       
       return data;
     } catch (error) {
-      console.warn(`Backend connection failed. Redirecting to Mock Offline Preview data for ${method} ${endpoint}`);
+      console.warn(`Backend connection failed (${error.message}). Redirecting to Mock Offline Preview data for ${method} ${endpoint}`);
       return this.handleMockRequest(endpoint, method, body);
     }
   }
@@ -175,6 +204,7 @@ class ApiService {
       const timelines = JSON.parse(localStorage.getItem('mock_timelines') || '{}');
       const notifications = JSON.parse(localStorage.getItem('mock_notifications') || '[]');
       const feedbacks = JSON.parse(localStorage.getItem('mock_feedbacks') || '{}');
+      const platformFeedbacks = JSON.parse(localStorage.getItem('mock_platform_feedbacks') || '[]');
       const activeMockUser = JSON.parse(localStorage.getItem('mock_user') || 'null');
 
       // Helper save functions
@@ -183,6 +213,7 @@ class ApiService {
       const saveNotifications = (data) => localStorage.setItem('mock_notifications', JSON.stringify(data));
       const saveFeedbacks = (data) => localStorage.setItem('mock_feedbacks', JSON.stringify(data));
       const saveUsers = (data) => localStorage.setItem('mock_users', JSON.stringify(data));
+      const savePlatformFeedbacks = (data) => localStorage.setItem('mock_platform_feedbacks', JSON.stringify(data));
 
       // 1. Authentication login mock
       if (endpoint.startsWith('/auth/login')) {
@@ -197,24 +228,7 @@ class ApiService {
             user: matched
           });
         } else {
-          // Fallback dynamic user registration on mock mode
-          const newUser = {
-            _id: 'mock-dynamic-' + Date.now(),
-            name: email.split('@')[0],
-            email: email,
-            role: email.includes('admin') ? 'admin' : 'user',
-            status: 'active',
-            createdAt: new Date().toISOString()
-          };
-          users.push(newUser);
-          saveUsers(users);
-          localStorage.setItem('mock_user', JSON.stringify(newUser));
-          localStorage.setItem('token', 'mock_token');
-          resolve({
-            success: true,
-            token: 'mock_token',
-            user: newUser
-          });
+          reject(new Error('Invalid credentials. User account not found. Please register first.'));
         }
         return;
       }
@@ -365,9 +379,61 @@ class ApiService {
         return;
       }
 
+      // 10b. Officer Dashboard Reports
+      if (endpoint.startsWith('/reports/officer-dashboard')) {
+        const deptComps = complaints.filter(
+          (c) => c.assignedDepartment?._id === activeMockUser.assignedDepartment || c.category?._id === activeMockUser.assignedDepartment
+        );
+        const pendingCount = deptComps.filter((c) => ['Submitted', 'Assigned', 'In Progress'].includes(c.status)).length;
+        const resolvedCount = deptComps.filter((c) => c.status === 'Resolved').length;
+        const closedCount = deptComps.filter((c) => c.status === 'Closed').length;
+
+        // SLA breaches
+        const now = new Date();
+        const activeBreaches = deptComps.filter((c) => 
+          ['Submitted', 'Assigned', 'In Progress'].includes(c.status) && new Date(c.slaDeadline) < now
+        ).length;
+
+        const monthlyTrend = [
+          { monthName: 'Feb 2026', count: 1 },
+          { monthName: 'Mar 2026', count: 2 },
+          { monthName: 'Apr 2026', count: 5 },
+          { monthName: 'May 2026', count: 8 },
+          { monthName: 'Jun 2026', count: 12 },
+          { monthName: 'Jul 2026', count: deptComps.length }
+        ];
+
+        const department = depts.find(d => d._id === activeMockUser.assignedDepartment) || null;
+
+        resolve({
+          success: true,
+          department,
+          recentComplaints: deptComps.slice(0, 10),
+          stats: {
+            total: deptComps.length,
+            pending: pendingCount,
+            resolved: resolvedCount,
+            closed: closedCount,
+            slaBreach: activeBreaches,
+            avgResolutionTimeHours: 12.5
+          },
+          monthlyTrend
+        });
+        return;
+      }
+
       // 11. Create a Complaint (Citizen submission)
       if (endpoint === '/complaints' && method === 'POST') {
-        const { title, description, category, priority, location } = body;
+        let title, description, category, priority, location;
+        if (body instanceof FormData) {
+          title = body.get('title');
+          description = body.get('description');
+          category = body.get('category');
+          priority = body.get('priority');
+          location = body.get('location');
+        } else {
+          ({ title, description, category, priority, location } = body);
+        }
         
         // Find matching category object
         const catObj = depts.find((d) => d._id === category) || depts[0];
@@ -415,6 +481,15 @@ class ApiService {
       // 13. Get all complaints (Admin View)
       if (endpoint.startsWith('/complaints/all') && method === 'GET') {
         resolve({ success: true, complaints });
+        return;
+      }
+
+      // 13b. Get department complaints (Officer View)
+      if (endpoint.startsWith('/complaints/department') && method === 'GET') {
+        const deptComps = complaints.filter(
+          (c) => c.assignedDepartment?._id === activeMockUser.assignedDepartment || c.category?._id === activeMockUser.assignedDepartment
+        );
+        resolve({ success: true, complaints: deptComps });
         return;
       }
 
@@ -525,9 +600,54 @@ class ApiService {
         return;
       }
 
+      // 17b. Platform Feedback (General Testimonials)
+      if (endpoint === '/platform-feedback' && method === 'GET') {
+        resolve({ success: true, feedbacks: platformFeedbacks });
+        return;
+      }
+
+      if (endpoint === '/platform-feedback' && method === 'POST') {
+        const { rating, comment } = body;
+        const newPF = {
+          _id: 'pf-' + Date.now(),
+          user: {
+            name: activeMockUser.name,
+            role: activeMockUser.role,
+            image: String(Math.floor(Math.random() * 70)) // random avatar
+          },
+          rating: Number(rating),
+          comment,
+          createdAt: new Date().toISOString()
+        };
+        platformFeedbacks.unshift(newPF); // add to top
+        savePlatformFeedbacks(platformFeedbacks);
+
+        resolve({ success: true, feedback: newPF });
+        return;
+      }
+
       // 18. Get User list (Admin)
       if (endpoint.startsWith('/users') && method === 'GET') {
-        resolve({ success: true, count: users.length, users });
+        const urlParams = new URLSearchParams(endpoint.split('?')[1] || '');
+        const roleQuery = urlParams.get('role');
+        const searchQuery = urlParams.get('search');
+
+        let filteredUsers = [...users];
+
+        if (roleQuery) {
+          filteredUsers = filteredUsers.filter((u) => u.role === roleQuery);
+        }
+
+        if (searchQuery) {
+          const lowerSearch = searchQuery.toLowerCase();
+          filteredUsers = filteredUsers.filter((u) => 
+            u.name?.toLowerCase().includes(lowerSearch) || 
+            u.email?.toLowerCase().includes(lowerSearch) || 
+            u.phone?.toLowerCase().includes(lowerSearch)
+          );
+        }
+
+        resolve({ success: true, count: filteredUsers.length, users: filteredUsers });
         return;
       }
 

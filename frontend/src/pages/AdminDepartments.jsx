@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { api } from '../services/api';
 import { useAuth } from '../context/AuthContext';
 import { FiPlus, FiEdit2, FiTrash2, FiFolderPlus } from 'react-icons/fi';
@@ -16,7 +16,7 @@ const AdminDepartments = () => {
   const [headOfDept, setHeadOfDept] = useState('');
   const [submitting, setSubmitting] = useState(false);
 
-  const fetchDepartments = async () => {
+  const fetchDepartments = useCallback(async () => {
     try {
       setLoading(true);
       const data = await api.get('/departments');
@@ -28,11 +28,11 @@ const AdminDepartments = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [showToast]);
 
   useEffect(() => {
     fetchDepartments();
-  }, []);
+  }, [fetchDepartments]);
 
   const openAddModal = () => {
     setEditId(null);

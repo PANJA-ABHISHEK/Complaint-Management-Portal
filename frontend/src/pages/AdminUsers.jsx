@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { api } from '../services/api';
 import { useAuth } from '../context/AuthContext';
 import { FiSearch, FiUserX, FiUserCheck } from 'react-icons/fi';
@@ -10,7 +10,7 @@ const AdminUsers = () => {
   const [search, setSearch] = useState('');
   const [role, setRole] = useState('');
 
-  const fetchUsers = async () => {
+  const fetchUsers = useCallback(async () => {
     try {
       setLoading(true);
       let query = '';
@@ -31,11 +31,11 @@ const AdminUsers = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [role, search, showToast]);
 
   useEffect(() => {
     fetchUsers();
-  }, [role]);
+  }, [fetchUsers]);
 
   const handleSearch = (e) => {
     e.preventDefault();

@@ -1,9 +1,26 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
+import { api } from '../services/api';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { FiCheckCircle, FiClock, FiUsers, FiTrendingUp, FiShield, FiArrowRight, FiFileText, FiMapPin, FiStar } from 'react-icons/fi';
 
 const LandingPage = () => {
+  const [feedbacks, setFeedbacks] = useState([]);
+
+  useEffect(() => {
+    const fetchFeedbacks = async () => {
+      try {
+        const data = await api.get('/platform-feedback');
+        if (data.success) {
+          setFeedbacks(data.feedbacks);
+        }
+      } catch (err) {
+        console.error(err);
+      }
+    };
+    fetchFeedbacks();
+  }, []);
+
   const stats = [
     { label: 'Grievances Resolved', count: '14,820+', icon: <FiCheckCircle className="text-emerald-500" />, bg: 'bg-emerald-50' },
     { label: 'Avg Resolution Time', count: '3.2 Days', icon: <FiClock className="text-brand-500" />, bg: 'bg-brand-50' },
@@ -233,47 +250,28 @@ const LandingPage = () => {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div className="bg-slate-800/80 backdrop-blur-sm p-8 rounded-3xl border border-slate-700 flex flex-col gap-6 relative group hover:bg-slate-800 transition-colors">
-              <div className="absolute -top-4 -left-4 text-6xl text-slate-700/50 font-serif font-black">"</div>
-              <p className="text-slate-300 text-sm leading-relaxed relative z-10 font-medium">
-                File submission was seamless. The water leakage was resolved within 24 hours of reporting, and I was updated with SMS and timeline logs. Excellent initiative by the government.
-              </p>
-              <div className="mt-auto border-t border-slate-700/50 pt-6 flex items-center gap-4">
-                <img src="https://i.pravatar.cc/100?img=11" className="w-12 h-12 rounded-full border-2 border-slate-600 object-cover" alt="Avatar" />
-                <div>
-                  <h4 className="text-sm font-bold text-white">Aromal Kumar</h4>
-                  <span className="text-[11px] text-brand-400 font-semibold uppercase tracking-wider">Verified Citizen</span>
+            {feedbacks.slice(0, 3).map((fb) => (
+              <div key={fb._id} className="bg-slate-800/80 backdrop-blur-sm p-8 rounded-3xl border border-slate-700 flex flex-col gap-6 relative group hover:bg-slate-800 transition-colors">
+                <div className="absolute -top-4 -left-4 text-6xl text-slate-700/50 font-serif font-black">"</div>
+                <p className="text-slate-300 text-sm leading-relaxed relative z-10 font-medium line-clamp-4">
+                  {fb.comment}
+                </p>
+                <div className="mt-auto border-t border-slate-700/50 pt-6 flex items-center gap-4">
+                  <img src={`https://i.pravatar.cc/100?img=${fb.user?.image || '11'}`} className="w-12 h-12 rounded-full border-2 border-slate-600 object-cover" alt="Avatar" />
+                  <div>
+                    <h4 className="text-sm font-bold text-white">{fb.user?.name || 'Citizen'}</h4>
+                    <span className={`text-[11px] font-semibold uppercase tracking-wider ${fb.user?.role === 'admin' ? 'text-tealbrand-400' : 'text-brand-400'}`}>
+                      {fb.user?.role === 'admin' ? 'Dept Officer' : 'Verified Citizen'}
+                    </span>
+                  </div>
+                  <div className="ml-auto flex gap-0.5">
+                    {[...Array(5)].map((_, i) => (
+                      <FiStar key={i} className={`text-xs ${i < fb.rating ? 'text-amber-400' : 'text-slate-600'}`} fill={i < fb.rating ? 'currentColor' : 'none'} />
+                    ))}
+                  </div>
                 </div>
               </div>
-            </div>
-
-            <div className="bg-slate-800/80 backdrop-blur-sm p-8 rounded-3xl border border-slate-700 flex flex-col gap-6 relative group hover:bg-slate-800 transition-colors">
-              <div className="absolute -top-4 -left-4 text-6xl text-slate-700/50 font-serif font-black">"</div>
-              <p className="text-slate-300 text-sm leading-relaxed relative z-10 font-medium">
-                The street light issue in our area has been pending for months. After registering a ticket here, the status was updated and fixed within 3 days. The transparency is brilliant.
-              </p>
-              <div className="mt-auto border-t border-slate-700/50 pt-6 flex items-center gap-4">
-                <img src="https://i.pravatar.cc/100?img=12" className="w-12 h-12 rounded-full border-2 border-slate-600 object-cover" alt="Avatar" />
-                <div>
-                  <h4 className="text-sm font-bold text-white">Rohan Sharma</h4>
-                  <span className="text-[11px] text-brand-400 font-semibold uppercase tracking-wider">Resident</span>
-                </div>
-              </div>
-            </div>
-
-            <div className="bg-slate-800/80 backdrop-blur-sm p-8 rounded-3xl border border-slate-700 flex flex-col gap-6 relative group hover:bg-slate-800 transition-colors">
-              <div className="absolute -top-4 -left-4 text-6xl text-slate-700/50 font-serif font-black">"</div>
-              <p className="text-slate-300 text-sm leading-relaxed relative z-10 font-medium">
-                As an administrator, compiling monthly reports and routing cases to field staff takes only a click. It has simplified municipal management immensely for our whole team.
-              </p>
-              <div className="mt-auto border-t border-slate-700/50 pt-6 flex items-center gap-4">
-                <img src="https://i.pravatar.cc/100?img=14" className="w-12 h-12 rounded-full border-2 border-slate-600 object-cover" alt="Avatar" />
-                <div>
-                  <h4 className="text-sm font-bold text-white">Manoj Dev</h4>
-                  <span className="text-[11px] text-tealbrand-400 font-semibold uppercase tracking-wider">Dept Supervisor</span>
-                </div>
-              </div>
-            </div>
+            ))}
           </div>
         </div>
       </section>

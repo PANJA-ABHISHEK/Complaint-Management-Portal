@@ -9,8 +9,7 @@ import {
   FiUsers,
   FiLayers,
   FiBell,
-  FiBarChart2,
-  FiSettings,
+  FiBarChart2
 } from 'react-icons/fi';
 
 const Sidebar = ({ isOpen, closeSidebar }) => {
@@ -20,6 +19,7 @@ const Sidebar = ({ isOpen, closeSidebar }) => {
   if (!user) return null;
 
   const isAdmin = user.role === 'admin';
+  const isOfficer = user.role === 'officer';
 
   const userLinks = [
     { label: 'Dashboard', path: '/dashboard', icon: <FiGrid /> },
@@ -38,7 +38,13 @@ const Sidebar = ({ isOpen, closeSidebar }) => {
     { label: 'My Profile', path: '/profile', icon: <FiUser /> },
   ];
 
-  const activeLinks = isAdmin ? adminLinks : userLinks;
+  const officerLinks = [
+    { label: 'Dept Dashboard', path: '/officer/dashboard', icon: <FiGrid /> },
+    { label: 'Dept Complaints', path: '/officer/complaints', icon: <FiList /> },
+    { label: 'My Profile', path: '/profile', icon: <FiUser /> },
+  ];
+
+  const activeLinks = isAdmin ? adminLinks : isOfficer ? officerLinks : userLinks;
 
   return (
     <>
@@ -59,7 +65,7 @@ const Sidebar = ({ isOpen, closeSidebar }) => {
         <div className="flex-1 py-6 px-4 overflow-y-auto flex flex-col gap-6">
           <div>
             <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest px-3">
-              {isAdmin ? 'Administration Portal' : 'Citizen Services'}
+              {isAdmin ? 'Administration Portal' : isOfficer ? 'Department Portal' : 'Citizen Services'}
             </span>
             <ul className="mt-3 flex flex-col gap-1">
               {activeLinks.map((link) => {

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
-import { FiDownload, FiBarChart2, FiGrid, FiFileText } from 'react-icons/fi';
+import { FiDownload, FiBarChart2, FiFileText } from 'react-icons/fi';
 
 const AdminReports = () => {
   const { showToast } = useAuth();

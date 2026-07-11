@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { api } from '../services/api';
 import { FiBell, FiUser, FiLogOut, FiMenu } from 'react-icons/fi';
@@ -10,7 +10,7 @@ const Navbar = ({ toggleSidebar }) => {
   const [showNotifications, setShowNotifications] = useState(false);
   const [showProfileMenu, setShowProfileMenu] = useState(false);
 
-  const fetchNotifications = async () => {
+  const fetchNotifications = useCallback(async () => {
     try {
       if (!user) return;
       const data = await api.get('/notifications');
@@ -20,13 +20,13 @@ const Navbar = ({ toggleSidebar }) => {
     } catch (err) {
       console.error('Error fetching notifications:', err.message);
     }
-  };
+  }, [user]);
 
   useEffect(() => {
     fetchNotifications();
     const interval = setInterval(fetchNotifications, 30000); // Poll every 30 seconds
     return () => clearInterval(interval);
-  }, [user]);
+  }, [fetchNotifications]);
 
   const unreadCount = notifications.filter((n) => !n.isRead).length;
 

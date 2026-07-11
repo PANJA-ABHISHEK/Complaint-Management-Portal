@@ -8,7 +8,7 @@ import Sidebar from './components/Sidebar';
 import Footer from './components/Footer';
 
 // Route protection guards
-import { ProtectedRoute, AdminRoute } from './components/ProtectedRoutes';
+import { ProtectedRoute, AdminRoute, OfficerRoute } from './components/ProtectedRoutes';
 
 // Public pages
 import LandingPage from './pages/LandingPage';
@@ -23,8 +23,9 @@ import MyComplaints from './pages/MyComplaints';
 import ComplaintDetails from './pages/ComplaintDetails';
 import ProfilePage from './pages/ProfilePage';
 
-// Admin pages
+// Admin & Officer pages
 import AdminDashboard from './pages/AdminDashboard';
+import OfficerDashboard from './pages/OfficerDashboard';
 import AdminComplaints from './pages/AdminComplaints';
 import AdminComplaintDetail from './pages/AdminComplaintDetail';
 import AdminUsers from './pages/AdminUsers';
@@ -72,7 +73,7 @@ const App = () => {
               <Route path="/profile" element={<ProfilePage />} />
             </Route>
 
-            {/* Administrator/Officer protected portal */}
+            {/* Administrator protected portal */}
             <Route element={<AdminRoute />}>
               <Route path="/admin/dashboard" element={<AdminDashboard />} />
               <Route path="/admin/complaints" element={<AdminComplaints />} />
@@ -81,6 +82,13 @@ const App = () => {
               <Route path="/admin/departments" element={<AdminDepartments />} />
               <Route path="/admin/notifications" element={<AdminNotifications />} />
               <Route path="/admin/reports" element={<AdminReports />} />
+            </Route>
+
+            {/* Department Officer protected portal */}
+            <Route element={<OfficerRoute />}>
+              <Route path="/officer/dashboard" element={<OfficerDashboard />} />
+              <Route path="/officer/complaints" element={<AdminComplaints />} />
+              <Route path="/officer/complaint/:id" element={<AdminComplaintDetail />} />
             </Route>
           </Route>
 
